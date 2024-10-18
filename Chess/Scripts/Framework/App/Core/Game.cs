@@ -1,5 +1,7 @@
 namespace Chess.App;
 
+using Chess.API;
+
 class Game {
     public Player WhitePlayer;
     public Player BlackPlayer;
@@ -12,20 +14,16 @@ class Game {
     }
 
     void GameStats() {
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("Game Stats:");
-        Console.ResetColor();
+        ConsoleHelper.WriteColoredText("Game Stats:", ConsoleColor.Yellow);
 
-        Console.ForegroundColor = ConsoleColor.Blue;
-        Console.Write($"Player 1: ");
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine(WhitePlayer);
-        Console.ResetColor();
+        ConsoleHelper.WriteColoredText("Player 1: ", ConsoleColor.Blue, false);
+        ConsoleHelper.WriteColoredText(WhitePlayer.ToString(), ConsoleColor.White);
 
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.Write($"Player 2: ");
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine(BlackPlayer);
-        Console.ResetColor();
+        ConsoleHelper.WriteColoredText("Player 2: ", ConsoleColor.Red, false);
+        ConsoleHelper.WriteColoredText(BlackPlayer.ToString(), ConsoleColor.White);
+    }
+
+    public void Render() {
+
     }
 }
