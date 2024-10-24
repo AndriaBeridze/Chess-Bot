@@ -12,6 +12,9 @@ class Theme {
 
     public static Color LightCol = new Color(238, 238, 210, 255);
     public static Color DarkCol = new Color(118, 150, 86, 255);
+    
+    public static Color DeskBackCol = new Color(36, 38, 46, 255);
 
     public static int SquareSideLength = 150;
+    public static int BorderSize = 20;
 }

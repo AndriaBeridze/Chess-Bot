@@ -8,6 +8,7 @@ class Game {
     
     public BoardUI BoardUI;
     public CoordUI CoordUI;
+    public PlayerUI PlayerUI;
 
     public Game(Player whitePlayer, Player blackPlayer, bool isWhitePerspective) {
         WhitePlayer = whitePlayer;
@@ -17,6 +18,7 @@ class Game {
 
         BoardUI = new BoardUI();
         CoordUI = new CoordUI();
+        PlayerUI = new PlayerUI(whitePlayer.PlayerType, blackPlayer.PlayerType);
         
         GameStats();
     }
@@ -34,5 +36,6 @@ class Game {
     public void Render() {
         BoardUI.Render();
         CoordUI.Render();
+        PlayerUI.Render();
     }
 }
