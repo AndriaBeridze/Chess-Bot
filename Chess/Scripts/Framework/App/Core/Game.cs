@@ -1,6 +1,8 @@
 namespace Chess.App;
 
+using Raylib_cs;
 using Chess.API;
+using Chess.ChessEngine;
 
 class Game {
     public Player WhitePlayer;
@@ -10,7 +12,9 @@ class Game {
     public CoordUI CoordUI;
     public PlayerUI PlayerUI;
 
-    public Game(Player whitePlayer, Player blackPlayer, bool isWhitePerspective) {
+    public Board Board;
+
+    public Game(Player whitePlayer, Player blackPlayer, string fen, bool isWhitePerspective) {
         WhitePlayer = whitePlayer;
         BlackPlayer = blackPlayer;
 
@@ -19,7 +23,9 @@ class Game {
         BoardUI = new BoardUI();
         CoordUI = new CoordUI();
         PlayerUI = new PlayerUI(whitePlayer.PlayerType, blackPlayer.PlayerType);
-        
+
+        Board = new Board(fen);
+
         GameStats();
     }
 

@@ -20,6 +20,10 @@ class BoardUI {
                             );
     }
 
+    public void SetColor(int index, Color color) {
+        squares[index].SetColor(color);
+    }
+
     public void Render() {
         Raylib.DrawRectangleRec(desk, Theme.DeskBackCol);
         for (int i = 0; i < 64; i++) {

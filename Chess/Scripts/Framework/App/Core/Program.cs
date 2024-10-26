@@ -9,7 +9,7 @@ class Program {
         Raylib.InitWindow(Theme.ScreenWidth, Theme.ScreenHeight, "Chess by Andria Beridze");
         Raylib.SetTargetFPS(60);
 
-        Game game = new Game(new Human(true), new Bot(false), true);
+        Game game = new Game(new Human(true), new Bot(false), "", false);
 
         while (!Raylib.WindowShouldClose()) {
             Raylib.BeginDrawing();

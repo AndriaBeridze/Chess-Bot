@@ -15,7 +15,7 @@ class CoordUI() {
 
     public void Render() {
         for (int i = 0; i < 8; i++) {
-            Coord coord = new Coord(Theme.IsWhitePerspective ? i + 1 : 6 - i, Theme.IsWhitePerspective ? -1 : 8);
+            Coord coord = new Coord(Theme.IsWhitePerspective ? -1 : 8, Theme.IsWhitePerspective ? i + 1 : 6 - i);
             int x = UIHelper.GetScreenX(coord);
             int y = UIHelper.GetScreenY(coord);
 
@@ -25,7 +25,7 @@ class CoordUI() {
             Raylib.DrawTextEx(font, colNames[i].ToString(), new Vector2(x, y), fontSize, 1, coord.IsLightColor ? Theme.DarkCol : Theme.LightCol);
         }
         for (int i = 0; i < 8; i++) {
-            Coord coord = new Coord(Theme.IsWhitePerspective ? 0 : 7, Theme.IsWhitePerspective ? 7 - i : i);
+            Coord coord = new Coord(Theme.IsWhitePerspective ? 7 - i : i, Theme.IsWhitePerspective ? 0 : 7);
             int x = UIHelper.GetScreenX(coord);
             int y = UIHelper.GetScreenY(coord);
 
