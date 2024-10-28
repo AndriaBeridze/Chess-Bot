@@ -25,14 +25,14 @@ class FenUtility {
             if (char.IsDigit(c)) {
                 int emptySquares = c - '0';
                 for (int i = 0; i < emptySquares; i++) {
-                    board.Square[i] = new Piece(false, PieceType.None);
+                    board.Square[squareIndex] = new Piece(PieceType.None, null);
                     squareIndex++;
                 }
             } else {
                 PieceType type = pieceTypeByChar[char.ToLower(c)];
                 bool isWhite = char.IsUpper(c);
                 
-                Piece piece = new Piece(isWhite, type);
+                Piece piece = new Piece(type, isWhite);
 
                 board.Square[squareIndex] = piece;
                 squareIndex++;

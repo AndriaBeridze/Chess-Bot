@@ -5,26 +5,28 @@ using Chess.API;
 using Chess.ChessEngine;
 
 class Game {
-    public Player WhitePlayer;
-    public Player BlackPlayer;
-    
-    public BoardUI BoardUI;
-    public CoordUI CoordUI;
-    public PlayerUI PlayerUI;
+    private Player whitePlayer;
+    private Player blackPlayer;
 
-    public Board Board;
+    private BoardUI boardUI;
+    private CoordUI coordUI;
+    private PositionUI positionUI;
+    private PlayerUI playerUI;
+
+    private Board board;
 
     public Game(Player whitePlayer, Player blackPlayer, string fen, bool isWhitePerspective) {
-        WhitePlayer = whitePlayer;
-        BlackPlayer = blackPlayer;
+        this.whitePlayer = whitePlayer;
+        this.blackPlayer = blackPlayer;
 
         Theme.IsWhitePerspective = isWhitePerspective;
 
-        BoardUI = new BoardUI();
-        CoordUI = new CoordUI();
-        PlayerUI = new PlayerUI(whitePlayer.PlayerType, blackPlayer.PlayerType);
+        board = new Board(fen);
 
-        Board = new Board(fen);
+        boardUI = new BoardUI();
+        coordUI = new CoordUI();
+        positionUI = new PositionUI(board);
+        playerUI = new PlayerUI(whitePlayer.PlayerType, blackPlayer.PlayerType);
 
         GameStats();
     }
@@ -33,15 +35,16 @@ class Game {
         UIHelper.WriteColoredText("Game Stats:", ConsoleColor.Yellow);
 
         UIHelper.WriteColoredText("Player 1: ", ConsoleColor.Blue, false);
-        UIHelper.WriteColoredText(WhitePlayer.ToString(), ConsoleColor.White);
+        UIHelper.WriteColoredText(whitePlayer.ToString(), ConsoleColor.White);
 
         UIHelper.WriteColoredText("Player 2: ", ConsoleColor.Red, false);
-        UIHelper.WriteColoredText(BlackPlayer.ToString(), ConsoleColor.White);
+        UIHelper.WriteColoredText(blackPlayer.ToString(), ConsoleColor.White);
     }
 
     public void Render() {
-        BoardUI.Render();
-        CoordUI.Render();
-        PlayerUI.Render();
+        boardUI.Render();
+        coordUI.Render();
+        positionUI.Render();
+        playerUI.Render();
     }
 }

@@ -28,4 +28,22 @@ class UIHelper {
         string fontPath = "Chess/Resources/Fonts/Nunito-Medium.ttf";
         return Raylib.LoadFontEx(fontPath, fontSize, null, 0);
     }
+
+    public static string GetPieceName(Piece piece) {
+        if (piece.IsKing) return "King";
+        if (piece.IsQueen) return "Queen";
+        if (piece.IsRook) return "Rook";
+        if (piece.IsBishop) return "Bishop";
+        if (piece.IsKnight) return "Knight";
+        if (piece.IsPawn) return "Pawn";
+        return "";
+    }
+
+    public static string GetPieceColor(Piece piece) {
+        return piece.IsWhite ? "White" : "Black";
+    }
+
+    public static string GetImageNameByPiece(Piece piece) {
+        return GetPieceColor(piece).ToLower() + GetPieceName(piece).ToLower() + ".png";
+    }
 }

@@ -24,4 +24,8 @@ class Board {
     public void SwitchTurn() {
         IsWhiteTurn = !IsWhiteTurn;
     }
+
+    public Piece GetPiece(int index) {
+        return Square[index];
+    }
 }

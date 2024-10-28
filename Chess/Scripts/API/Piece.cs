@@ -15,7 +15,7 @@ class Piece {
     public bool IsQueen => type == PieceType.Queen;
     public bool IsKing => type == PieceType.King;
 
-    public Piece(bool? isWhite, PieceType type) {
+    public Piece(PieceType type, bool? isWhite) {
         this.isWhite = isWhite;
         this.type = type;
     }
