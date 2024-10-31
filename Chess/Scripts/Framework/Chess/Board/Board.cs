@@ -28,4 +28,8 @@ class Board {
     public Piece GetPiece(int index) {
         return Square[index];
     }
+
+    public void MakeMove(Move move) {
+        MoveUtility.MakeMove(this, move);
+    }
 }

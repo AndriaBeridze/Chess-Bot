@@ -15,6 +15,15 @@ class Piece {
     public bool IsQueen => type == PieceType.Queen;
     public bool IsKing => type == PieceType.King;
 
+    private Dictionary<PieceType, String> pieceNames = new() {
+        { PieceType.Pawn, "p" },
+        { PieceType.Rook, "r" },
+        { PieceType.Knight, "n" },
+        { PieceType.Bishop, "b" },
+        { PieceType.Queen, "q" },
+        { PieceType.King, "k" },
+    };
+
     public Piece(PieceType type, bool? isWhite) {
         this.isWhite = isWhite;
         this.type = type;
@@ -23,6 +32,11 @@ class Piece {
     public override string ToString() {
         if (IsNone) return "None";
         return $"{(isWhite.HasValue && isWhite.Value ? "White" : "Black")} {type}";
+    }
+
+    public string GetPieceName() {
+        if (IsNone) return " ";
+        return isWhite != null && isWhite.Value ? pieceNames[type].ToUpper() : pieceNames[type];
     }
 
     public static bool operator ==(Piece a, Piece b) => a.IsWhite == b.IsWhite && a.type == b.type;

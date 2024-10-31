@@ -8,12 +8,12 @@ class Game {
     private Player whitePlayer;
     private Player blackPlayer;
 
-    private BoardUI boardUI;
-    private CoordUI coordUI;
-    private PositionUI positionUI;
-    private PlayerUI playerUI;
+    public BoardUI boardUI;
+    public CoordUI coordUI;
+    public PositionUI positionUI;
+    public PlayerUI playerUI;
 
-    private Board board;
+    public Board board;
 
     public Game(Player whitePlayer, Player blackPlayer, string fen, bool isWhitePerspective) {
         this.whitePlayer = whitePlayer;
@@ -46,5 +46,12 @@ class Game {
         coordUI.Render();
         positionUI.Render();
         playerUI.Render();
+    }
+
+    public void Update() {
+        Move? move = positionUI.Update();
+        if (move != null) {
+            board.MakeMove(move);
+        }
     }
 }

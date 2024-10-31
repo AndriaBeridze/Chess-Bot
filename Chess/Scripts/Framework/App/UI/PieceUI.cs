@@ -6,26 +6,31 @@ using Chess.API;
 using System.Security.Cryptography.X509Certificates;
 
 class PieceUI {
+    public Coord Coord;
+    public int X, Y;
     private string imgURL = "Chess/Resources/Sprites/";
-    private Coord coord;
-    private int x, y;
+    private Texture2D texture;
 
     public PieceUI(Piece piece, Coord coord) {
-        this.coord = coord;
+        Coord = coord;
         imgURL += UIHelper.GetImageNameByPiece(piece);
-        x = UIHelper.GetScreenX(coord);
-        y = UIHelper.GetScreenY(coord);
+        X = UIHelper.GetScreenX(coord);
+        Y = UIHelper.GetScreenY(coord);
+
+        texture = Raylib.LoadTexture(imgURL);
+        Raylib.SetTextureFilter(texture, TextureFilter.Bilinear);
+    }
+
+    public void ResetPosition() {
+        X = UIHelper.GetScreenX(Coord);
+        Y = UIHelper.GetScreenY(Coord);
     }
 
     public void Render() {
-        Texture2D texture = Raylib.LoadTexture(imgURL);
-
-        Raylib.SetTextureFilter(texture, TextureFilter.Bilinear);
-        
         Raylib.DrawTexturePro(
             texture,
             new Rectangle(0, 0, texture.Width, texture.Height),
-            new Rectangle(x, y, Theme.SquareSideLength, Theme.SquareSideLength),
+            new Rectangle(X, Y, Theme.SquareSideLength, Theme.SquareSideLength),
             new Vector2(0, 0),
             0,
             Color.White
