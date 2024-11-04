@@ -49,9 +49,7 @@ class Game {
     }
 
     public void Update() {
-        Move? move = positionUI.Update();
-        if (move != null) {
-            board.MakeMove(move);
-        }
+        positionUI.Update(board, boardUI);
+
     }
 }

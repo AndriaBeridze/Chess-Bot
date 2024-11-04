@@ -11,11 +11,7 @@ class PositionUI {
 
     public PositionUI(Board board) {
         pieces = new List<PieceUI>();
-        for (int i = 0; i < 64; i++) {
-            if (!board.Square[i].IsNone) {
-                pieces.Add(new PieceUI(board.Square[i], new Coord(i)));
-            }
-        }
+        SetUpPosition(board);
     }
 
     public void Render() {
@@ -25,7 +21,16 @@ class PositionUI {
         if (draggedPiece != -1) pieces[draggedPiece].Render();
     }
 
-    public Move? Update() {
+    public void SetUpPosition(Board board) {
+        pieces = new List<PieceUI>();
+        for (int i = 0; i < 64; i++) {
+            if (!board.Square[i].IsNone) {
+                pieces.Add(new PieceUI(board.Square[i], new Coord(i)));
+            }
+        }
+    }
+
+    public void Update(Board board, BoardUI boardUI) {
         Move? move = null;
         if (Raylib.IsMouseButtonPressed(MouseButton.Left)) {
             int x = Raylib.GetMouseX();
@@ -34,6 +39,10 @@ class PositionUI {
             foreach (PieceUI piece in pieces) {
                 if (Raylib.CheckCollisionPointRec(new Vector2(x, y), new Rectangle(piece.X, piece.Y, Theme.SquareSideLength, Theme.SquareSideLength))) {
                     draggedPiece = pieces.IndexOf(piece);
+                    if (board.Square[piece.Coord.SquareIndex].IsWhite == board.IsWhiteTurn) {
+                        boardUI.HighlightValidMoves(MoveGenerator.GenerateMoves(board, piece.Coord.SquareIndex));
+                        boardUI.HighlightSquare(piece.Coord.SquareIndex);
+                    }
                     break;
                 }
             }
@@ -46,11 +55,14 @@ class PositionUI {
             bool placedOnValidSquare = false;
             for (int i = 0; i < 64; i++) {
                 if (Raylib.CheckCollisionPointRec(new Vector2(Raylib.GetMouseX(), Raylib.GetMouseY()), new Rectangle(UIHelper.GetScreenX(i % 8), UIHelper.GetScreenY(i / 8), Theme.SquareSideLength, Theme.SquareSideLength))) {
-                    if (draggedPiece != -1) {
+                    if (draggedPiece != -1 && boardUI.IsValidMove(i)) {
                         if (pieces.FindIndex(p => p.Coord == new Coord(i)) != -1) {
-                            pieces.RemoveAt(pieces.FindIndex(p => p.Coord == new Coord(i)));
+                            int index = pieces.FindIndex(p => p.Coord == new Coord(i));
+                            pieces.RemoveAt(index);
+                            if (draggedPiece > index) draggedPiece--;
                         }
                         move = new Move(pieces[draggedPiece].Coord, new Coord(i));
+                        boardUI.SetLastMove(move);
                         pieces[draggedPiece].Coord = new Coord(i);
                         pieces[draggedPiece].ResetPosition();
                         placedOnValidSquare = true;
@@ -61,7 +73,10 @@ class PositionUI {
                 pieces[draggedPiece].ResetPosition();
             }
             draggedPiece = -1;
+            boardUI.Clear();
         }
-        return move;
+        if (move != null) {
+            board.MakeMove(move);
+        }
     }
 }

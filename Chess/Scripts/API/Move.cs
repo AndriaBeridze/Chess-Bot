@@ -1,11 +1,11 @@
 namespace Chess.API;
 
 class Move {
-    public Coord startingCoord;
-    public Coord endingCoord;
+    public Coord StartingCoord;
+    public Coord EndingCoord;
 
     public Move(Coord startingCoord, Coord endingCoord) {
-        this.startingCoord = startingCoord;
-        this.endingCoord = endingCoord;
+        this.StartingCoord = startingCoord;
+        this.EndingCoord = endingCoord;
     }
 }

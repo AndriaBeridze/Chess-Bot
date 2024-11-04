@@ -15,6 +15,8 @@ class Piece {
     public bool IsQueen => type == PieceType.Queen;
     public bool IsKing => type == PieceType.King;
 
+    public bool IsSlidingPiece => IsRook || IsBishop || IsQueen;
+
     private Dictionary<PieceType, String> pieceNames = new() {
         { PieceType.Pawn, "p" },
         { PieceType.Rook, "r" },
