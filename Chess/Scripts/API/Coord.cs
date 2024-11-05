@@ -40,10 +40,7 @@ class Coord {
     public override bool Equals(object? obj) => obj is Coord coord && this == coord;
     public override int GetHashCode() => SquareIndex;
     
-    /*
-        Useful for move logic
-        Knight move can be represented as (1, 2); adding this to the current position gives the new position.
-    */
+    // Knight move can be represented as (1, 2); adding this to the current position gives the new position.
     public static Coord operator +(Coord a, Coord b) => new(a.RowIndex + b.RowIndex, a.ColumnIndex + b.ColumnIndex);
     public static Coord operator -(Coord a, Coord b) => new(a.RowIndex - b.RowIndex, a.ColumnIndex - b.ColumnIndex);
     public static Coord operator *(Coord a, int b) => new(a.RowIndex * b, a.ColumnIndex * b);

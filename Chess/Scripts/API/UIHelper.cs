@@ -3,26 +3,18 @@ namespace Chess.API;
 using Raylib_cs;
 
 class UIHelper {
-    public static void WriteColoredText(string text, ConsoleColor color, bool newLine = true) {
-        Console.ForegroundColor = color;
-        Console.Write(text + (newLine ? Environment.NewLine : ""));
+    // Finding square's x position on screen by its column index
+    public static int GetScreenX(int columnIndex) {
+        return Theme.ScreenWidth / 2 - (Theme.IsWhitePerspective ? (4 - columnIndex) : (columnIndex - 3)) * Theme.SquareSideLength;
     }
 
-    public static int GetScreenX(int x) {
-        return Theme.ScreenWidth / 2 - (Theme.IsWhitePerspective ? (4 - x) : (x - 3)) * Theme.SquareSideLength;
+    // Finding square's y position on screen by its row index
+    public static int GetScreenY(int rowIndex) {
+        return Theme.ScreenHeight / 2 - (Theme.IsWhitePerspective ? (rowIndex - 3) : (4 - rowIndex)) * Theme.SquareSideLength;
     }
 
-    public static int GetScreenY(int y) {
-        return Theme.ScreenHeight / 2 - (Theme.IsWhitePerspective ? (y - 3) : (4 - y)) * Theme.SquareSideLength;
-    }
-
-    public static int GetScreenX(Coord coord) {
-        return GetScreenX(coord.ColumnIndex);
-    }
-
-    public static int GetScreenY(Coord coord) {
-        return GetScreenY(coord.RowIndex);
-    }
+    public static int GetScreenX(Coord coord) => GetScreenX(coord.ColumnIndex);
+    public static int GetScreenY(Coord coord) => GetScreenY(coord.RowIndex);
 
     public static Font LoadFont(int fontSize) {
         string fontPath = "Chess/Resources/Fonts/Nunito-Medium.ttf";
@@ -43,6 +35,7 @@ class UIHelper {
         return piece.IsWhite ? "White" : "Black";
     }
 
+    // Get an image url corresponding to the piece
     public static string GetImageNameByPiece(Piece piece) {
         return GetPieceColor(piece).ToLower() + GetPieceName(piece).ToLower() + ".png";
     }

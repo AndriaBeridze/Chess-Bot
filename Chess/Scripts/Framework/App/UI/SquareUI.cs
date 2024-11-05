@@ -4,30 +4,29 @@ using Raylib_cs;
 using Chess.API;
 
 class SquareUI {
-    private Coord coord;
-    private Color color;
+    public Coord Coord;
+    public Color Color;
 
+    // Custom color is set
     public SquareUI(Coord coord, Color color) {
-        this.coord = coord;
-        this.color = color;
+        this.Coord = coord;
+        this.Color = color;
     }
 
+    // Default color is set based on the square's position
     public SquareUI(Coord coord) {
-        this.coord = coord;
-        color = coord.IsLightColor ? Theme.LightCol : Theme.DarkCol;
+        this.Coord = coord;
+        Color = coord.IsLightColor ? Theme.LightCol : Theme.DarkCol;
     }
-
-    public Coord Coord => coord;
-    public Color Color => color;
 
     public void SetColor(Color color) {
-        this.color = color;
+        this.Color = color;
     }
 
     public void Render() {
-        int x = UIHelper.GetScreenX(coord.ColumnIndex);
-        int y = UIHelper.GetScreenY(coord.RowIndex);
+        int x = UIHelper.GetScreenX(Coord.ColumnIndex);
+        int y = UIHelper.GetScreenY(Coord.RowIndex);
 
-        Raylib.DrawRectangle(x, y, Theme.SquareSideLength, Theme.SquareSideLength, color);
+        Raylib.DrawRectangle(x, y, Theme.SquareSideLength, Theme.SquareSideLength, Color);
     }
 }

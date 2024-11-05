@@ -5,16 +5,16 @@ using Chess.API;
 using Chess.ChessEngine;
 
 class BoardUI {
-    private Rectangle desk;
+    private Rectangle desk; // Board frame
     private SquareUI[] squares;
-    private Move? lastMove;
+    private Move? lastMove; // For highlighting the last move
 
     public BoardUI() {
-        desk = new Rectangle(UIHelper.GetScreenX(Theme.IsWhitePerspective ? 0 : 7) - Theme.BorderSize, 
-                             UIHelper.GetScreenY(Theme.IsWhitePerspective ? 7 : 0) - Theme.BorderSize, 
-                             8 * Theme.SquareSideLength + 2 * Theme.BorderSize, 
-                             8 * Theme.SquareSideLength + 2 * Theme.BorderSize
-                            );
+        int deskX = UIHelper.GetScreenX(Theme.IsWhitePerspective ? 0 : 7) - Theme.BorderSize;
+        int deskY = UIHelper.GetScreenY(Theme.IsWhitePerspective ? 7 : 0) - Theme.BorderSize;
+        int deskSideLength = 8 * Theme.SquareSideLength + 2 * Theme.BorderSize;
+
+        desk = new Rectangle(deskX, deskY, deskSideLength, deskSideLength);
 
         squares = new SquareUI[64];
         for (int i = 0; i < 64; i++) {
@@ -22,19 +22,12 @@ class BoardUI {
         }
     }
 
-    public bool IsValidMove(int index) {
-        return squares[index].Color.Equals(Theme.LegalLight) || squares[index].Color.Equals(Theme.LegalDark);
-    }
-
     public void SetColor(int index, Color color) {
         squares[index].SetColor(color);
     }
 
-    public void Render() {
-        Raylib.DrawRectangleRec(desk, Theme.DeskBackCol);
-        for (int i = 0; i < 64; i++) {
-            squares[i].Render();
-        }
+    public void HighlightSquare(int index) {
+        squares[index].SetColor(new Coord(index).IsLightColor ? Theme.SelectedLight : Theme.SelectedDark);
     }
 
     public void HighlightValidMoves(List<Move> moves) {
@@ -43,14 +36,17 @@ class BoardUI {
         }
     }
 
-    public void HighlightSquare(int index) {
-        squares[index].SetColor(new Coord(index).IsLightColor ? Theme.SelectedLight : Theme.SelectedDark);
-    }
-
+    // To highlight the last move on the board
     public void SetLastMove(Move? move) {
         lastMove = move;
     }
 
+    public bool IsValidToMove(int index) {
+        // Check if the square is highlighted as a legal move
+        return squares[index].Color.Equals(Theme.LegalLight) || squares[index].Color.Equals(Theme.LegalDark);
+    }
+
+    // Clearing the board from legal move and check highlights
     public void Clear() {
         for (int i = 0; i < 64; i++) {
             squares[i] = new SquareUI(new Coord(i));
@@ -58,6 +54,13 @@ class BoardUI {
         if (lastMove != null) {
             HighlightSquare(lastMove.StartingCoord.SquareIndex);
             HighlightSquare(lastMove.EndingCoord.SquareIndex);
+        }
+    }
+
+    public void Render() {
+        Raylib.DrawRectangleRec(desk, Theme.DeskBackCol);
+        for (int i = 0; i < 64; i++) {
+            squares[i].Render();
         }
     }
 }

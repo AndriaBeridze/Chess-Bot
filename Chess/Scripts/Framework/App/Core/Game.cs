@@ -19,6 +19,7 @@ class Game {
         this.whitePlayer = whitePlayer;
         this.blackPlayer = blackPlayer;
 
+        // Does board need to be rotated to show it from black's perspective?
         Theme.IsWhitePerspective = isWhitePerspective;
 
         board = new Board(fen);
@@ -27,18 +28,6 @@ class Game {
         coordUI = new CoordUI();
         positionUI = new PositionUI(board);
         playerUI = new PlayerUI(whitePlayer.PlayerType, blackPlayer.PlayerType);
-
-        GameStats();
-    }
-
-    void GameStats() {
-        UIHelper.WriteColoredText("Game Stats:", ConsoleColor.Yellow);
-
-        UIHelper.WriteColoredText("Player 1: ", ConsoleColor.Blue, false);
-        UIHelper.WriteColoredText(whitePlayer.ToString(), ConsoleColor.White);
-
-        UIHelper.WriteColoredText("Player 2: ", ConsoleColor.Red, false);
-        UIHelper.WriteColoredText(blackPlayer.ToString(), ConsoleColor.White);
     }
 
     public void Render() {
@@ -49,7 +38,10 @@ class Game {
     }
 
     public void Update() {
+        Player currentPlayer = board.IsWhiteTurn ? whitePlayer : blackPlayer;
+        if (currentPlayer.IsBot) {
+            
+        }
         positionUI.Update(board, boardUI);
-
     }
 }

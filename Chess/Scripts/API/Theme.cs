@@ -2,8 +2,9 @@ namespace Chess.API;
 
 using Raylib_cs;
 
+// Change this if you want to change the colors, screen resolution, etc.
 class Theme {
-    public static bool IsWhitePerspective = false;
+    public static bool IsWhitePerspective = true;
 
     public static int ScreenWidth = 2560;
     public static int ScreenHeight = 1440;

@@ -1,11 +1,11 @@
 namespace Chess.API;
 
 class Piece {
-    private bool? isWhite;
+    private bool? isWhite; // If no piece is on the square, isWhite is null
     private PieceType type;
 
-    public bool IsWhite => isWhite != null && isWhite.Value;
-    public bool IsBlack => isWhite != null && !isWhite.Value;
+    public bool IsWhite => isWhite.HasValue && isWhite.Value;
+    public bool IsBlack => isWhite.HasValue && !isWhite.Value;
 
     public bool IsNone => type == PieceType.None;
     public bool IsPawn => type == PieceType.Pawn;
@@ -14,17 +14,9 @@ class Piece {
     public bool IsBishop => type == PieceType.Bishop;
     public bool IsQueen => type == PieceType.Queen;
     public bool IsKing => type == PieceType.King;
-
-    public bool IsSlidingPiece => IsRook || IsBishop || IsQueen;
-
-    private Dictionary<PieceType, String> pieceNames = new() {
-        { PieceType.Pawn, "p" },
-        { PieceType.Rook, "r" },
-        { PieceType.Knight, "n" },
-        { PieceType.Bishop, "b" },
-        { PieceType.Queen, "q" },
-        { PieceType.King, "k" },
-    };
+    
+    // Sliding piece movements can be combined and calculated in one go
+    public bool IsSlidingPiece => IsRook || IsBishop || IsQueen; 
 
     public Piece(PieceType type, bool? isWhite) {
         this.isWhite = isWhite;
@@ -34,11 +26,6 @@ class Piece {
     public override string ToString() {
         if (IsNone) return "None";
         return $"{(isWhite.HasValue && isWhite.Value ? "White" : "Black")} {type}";
-    }
-
-    public string GetPieceName() {
-        if (IsNone) return " ";
-        return isWhite != null && isWhite.Value ? pieceNames[type].ToUpper() : pieceNames[type];
     }
 
     public static bool operator ==(Piece a, Piece b) => a.IsWhite == b.IsWhite && a.type == b.type;

@@ -9,6 +9,7 @@ class Program {
         Raylib.InitWindow(Theme.ScreenWidth, Theme.ScreenHeight, "Chess by Andria Beridze");
         Raylib.SetTargetFPS(60);
 
+        // Default game: Human vs Bot | Initial position | Board visible from white's perspective
         Game game = new Game(new Human(true), new Bot(false), "", true);
 
         while (!Raylib.WindowShouldClose()) {

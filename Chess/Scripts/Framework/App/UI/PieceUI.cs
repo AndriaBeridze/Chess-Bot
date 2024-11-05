@@ -3,13 +3,12 @@ namespace Chess.App;
 using Raylib_cs;
 using System.Numerics;
 using Chess.API;
-using System.Security.Cryptography.X509Certificates;
 
 class PieceUI {
     public Coord Coord;
     public int X, Y;
-    private string imgURL = "Chess/Resources/Sprites/";
-    private Texture2D texture;
+    private string imgURL = "Chess/Resources/Sprites/"; // Every piece image is stored in this directory
+    private Texture2D texture; // Preloaded texture to avoid loading it every frame
 
     public PieceUI(Piece piece, Coord coord) {
         Coord = coord;
@@ -18,9 +17,10 @@ class PieceUI {
         Y = UIHelper.GetScreenY(coord);
 
         texture = Raylib.LoadTexture(imgURL);
-        Raylib.SetTextureFilter(texture, TextureFilter.Bilinear);
+        Raylib.SetTextureFilter(texture, TextureFilter.Bilinear); // To avoid resolution loss when scaling
     }
 
+    // When illegal move is played, piece goes to its original position
     public void ResetPosition() {
         X = UIHelper.GetScreenX(Coord);
         Y = UIHelper.GetScreenY(Coord);
