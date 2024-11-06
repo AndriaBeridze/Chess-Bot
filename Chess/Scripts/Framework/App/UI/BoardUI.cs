@@ -32,7 +32,7 @@ class BoardUI {
 
     public void HighlightValidMoves(List<Move> moves) {
         foreach (Move move in moves) {
-            squares[move.EndingCoord.SquareIndex].SetColor(move.EndingCoord.IsLightColor ? Theme.LegalLight : Theme.LegalDark);
+            squares[move.Target].SetColor(move.TargetCoord.IsLightColor ? Theme.LegalLight : Theme.LegalDark);
         }
     }
 
@@ -52,8 +52,8 @@ class BoardUI {
             squares[i] = new SquareUI(new Coord(i));
         }
         if (lastMove != null) {
-            HighlightSquare(lastMove.StartingCoord.SquareIndex);
-            HighlightSquare(lastMove.EndingCoord.SquareIndex);
+            HighlightSquare(lastMove.Source);
+            HighlightSquare(lastMove.Target);
         }
     }
 

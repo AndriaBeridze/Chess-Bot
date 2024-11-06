@@ -1,110 +1,98 @@
 namespace Chess.ChessEngine;
 
+using System.ComponentModel.DataAnnotations;
 using Chess.API;
 
 class MoveGenerator {
-    public static List<Move> GenerateMoves(Board board, int squareIndex) {
-        List<Move> moves = new List<Move>();
-        if (board.Square[squareIndex].IsSlidingPiece) {
-            moves = GenerateSlidingMoves(board, squareIndex);
-        } else if (board.Square[squareIndex].IsKnight) {
-            moves = GenerateKnightMoves(board, squareIndex);
-        } else if (board.Square[squareIndex].IsKing) {
-            moves = GenerateKingMoves(board, squareIndex);
-        } else if (board.Square[squareIndex].IsPawn) {
-            moves = GeneratePawnMoves(board, squareIndex);
-        }
+    public static List<Move> GenerateMoves(Board board, int? squareIndex = null) {
+        // Generates all possible moves for the current player
+        List<Move> moves = [
+            .. GeneratePawnMoves(board),
+            .. GenerateKnightMoves(board),
+        ];
+
+        // If specific square is provided, filter moves to only include moves from that square
+        if (squareIndex != -1)  moves = moves.Where(move => move.Source == squareIndex).ToList();
 
         return moves;
     }
 
-    private static List<Move> GenerateSlidingMoves(Board board, int squareIndex) {
+    public static List<Move> GeneratePawnMoves(Board board) {
         List<Move> moves = new List<Move>();
-        Coord[] direction = { 
-            new Coord(1, 0), new Coord(0, 1), new Coord(-1, 0), new Coord(0, -1),
-            new Coord(1, 1), new Coord(-1, 1), new Coord(-1, -1), new Coord(1, -1)
-        };
-        int start = board.Square[squareIndex].IsBishop ? 4 : 0;
-        int end = board.Square[squareIndex].IsRook ? 4 : 8;
 
-        for (int i = start; i < end; i++) {
-            for (int j = 1; j <= 7; j++) {
-                Coord newCoord = new Coord(squareIndex) + direction[i] * j;
-                if (!newCoord.IsValidSquare) break;
+        ulong pawns = board.Bitboard[PieceType.Pawn] & board.Bitboard[board.IsWhiteTurn ? PieceType.White : PieceType.Black];
+        ulong empty = board.Empty;
 
-                if (!board.Square[newCoord.SquareIndex].IsNone && board.Square[newCoord.SquareIndex].IsWhite == board.Square[squareIndex].IsWhite) break;
-                
-                moves.Add(new Move(new Coord(squareIndex), newCoord));
-            
-                if (!board.Square[newCoord.SquareIndex].IsNone) break;
+        ulong singlePush, doublePush, rightCapture, leftCapture;
+        ulong regularPromotion, rightCapturePromotion, leftCapturePromotion;
+
+        // Single push: Move one square forward and check if the corresponding squares are empty
+        // Double push: Move two squares forward and check if the corresponding squares are empty, squares in between are empty, and the pawn is in the starting position
+        // Right capture: Move one square diagonally right and check if the corresponding square is occupied by an enemy piece, and the pawn is not on the rightmost column
+        // Left capture: Move one square diagonally left and check if the corresponding square is occupied by an enemy piece, and the pawn is not on the leftmost column
+        // Regular promotion: Move to the last row and promote to a any piece except a king
+        if (board.IsWhiteTurn) {
+            singlePush = (pawns << 8) & empty & ~Masks.Row[7];
+            doublePush = (pawns << 16) & empty & (empty << 8) & Masks.Row[3];
+            rightCapture = (pawns << 9) & board.Bitboard[PieceType.Black] & ~Masks.Column[0] & ~Masks.Row[7];
+            leftCapture = (pawns << 7) & board.Bitboard[PieceType.Black] & ~Masks.Column[7] & ~Masks.Row[7];
+            regularPromotion = (pawns << 8) & empty & Masks.Row[7];
+            rightCapturePromotion = (pawns << 9) & board.Bitboard[PieceType.Black] & ~Masks.Column[0] & Masks.Row[7];
+            leftCapturePromotion = (pawns << 7) & board.Bitboard[PieceType.Black] & ~Masks.Column[7] & Masks.Row[7];
+        } else {
+            singlePush = (pawns >> 8) & empty & ~Masks.Row[0];
+            doublePush = (pawns >> 16) & empty & (empty >> 8) & Masks.Row[4];
+            rightCapture = (pawns >> 9) & board.Bitboard[PieceType.White] & ~Masks.Column[7] & ~Masks.Row[0];
+            leftCapture = (pawns >> 7) & board.Bitboard[PieceType.White] & ~Masks.Column[0] & ~Masks.Row[0];
+            regularPromotion = (pawns >> 8) & empty & Masks.Row[0];
+            rightCapturePromotion = (pawns >> 9) & board.Bitboard[PieceType.White] & ~Masks.Column[7] & Masks.Row[0];
+            leftCapturePromotion = (pawns >> 7) & board.Bitboard[PieceType.White] & ~Masks.Column[0] & Masks.Row[0];
+        }
+
+        // Extract moves from bitboards
+        // Check rightmost bit, add it to the list, and then clear it
+        moves.AddRange(BitboardHelper.ExtractPawnMoves(singlePush, board.IsWhiteTurn ? 8 : -8));
+        moves.AddRange(BitboardHelper.ExtractPawnMoves(doublePush, board.IsWhiteTurn ? 16 : -16));
+        moves.AddRange(BitboardHelper.ExtractPawnMoves(rightCapture, board.IsWhiteTurn ? 9 : -9));
+        moves.AddRange(BitboardHelper.ExtractPawnMoves(leftCapture, board.IsWhiteTurn ? 7 : -7));
+        moves.AddRange(BitboardHelper.ExtractPawnMoves(regularPromotion, board.IsWhiteTurn ? 8 : -8, true));
+        moves.AddRange(BitboardHelper.ExtractPawnMoves(rightCapturePromotion, board.IsWhiteTurn ? 9 : -9, true));
+        moves.AddRange(BitboardHelper.ExtractPawnMoves(leftCapturePromotion, board.IsWhiteTurn ? 7 : -7, true));
+
+        return moves;
+    }
+
+    public static List<Move> GenerateKnightMoves(Board board) {
+        List<Move> moves = new List<Move>();
+
+        ulong knights = board.Bitboard[PieceType.Knight] & board.Bitboard[board.IsWhiteTurn ? PieceType.White : PieceType.Black];
+
+        while (knights != 0) {
+            int index = BitboardHelper.GetFirstBit(knights);
+            ulong moveSet = Masks.KnightMoves;
+
+            // Knight moves are the same from every square
+            // We can keep one copy of it and shift it to the correct position
+            if (index > 18) {   
+                moveSet <<= index - 18;
+            } else {
+                moveSet >>= 18 - index;
             }
-        }
 
-        return moves;
-    }
-
-    private static List<Move> GenerateKnightMoves(Board board, int squareIndex) {
-        List<Move> moves = new List<Move>();
-        Coord[] direction = new Coord[] { 
-            new Coord(1, 2), new Coord(2, 1), new Coord(-1, 2), new Coord(-2, 1),
-            new Coord(1, -2), new Coord(2, -1), new Coord(-1, -2), new Coord(-2, -1)
-        };
-
-        for (int i = 0; i < 8; i++) {
-            Coord newCoord = new Coord(squareIndex) + direction[i];
-            if (!newCoord.IsValidSquare) continue;
-
-            if (!board.Square[newCoord.SquareIndex].IsNone && board.Square[newCoord.SquareIndex].IsWhite == board.Square[squareIndex].IsWhite) continue;
-            
-            moves.Add(new Move(new Coord(squareIndex), newCoord));
-        }
-
-        return moves;
-    }
-
-    private static List<Move> GenerateKingMoves(Board board, int squareIndex) {
-        List<Move> moves = new List<Move>();
-        Coord[] direction = new Coord[] { 
-            new Coord(1, 0), new Coord(0, 1), new Coord(-1, 0), new Coord(0, -1),
-            new Coord(1, 1), new Coord(-1, 1), new Coord(-1, -1), new Coord(1, -1)
-        };
-
-        for (int i = 0; i < 8; i++) {
-            Coord newCoord = new Coord(squareIndex) + direction[i];
-            if (!newCoord.IsValidSquare) continue;
-
-            if (!board.Square[newCoord.SquareIndex].IsNone && board.Square[newCoord.SquareIndex].IsWhite == board.Square[squareIndex].IsWhite) continue;
-            
-            moves.Add(new Move(new Coord(squareIndex), newCoord));
-        }
-
-        return moves;
-    }
-
-    private static List<Move> GeneratePawnMoves(Board board, int squareIndex) {
-        List<Move> moves = new List<Move>();
-        int dir = (board.Square[squareIndex].IsWhite) ? 1 : -1;
-        
-        if (board.Square[squareIndex + 8 * dir].IsNone) {
-            moves.Add(new Move(new Coord(squareIndex), new Coord(squareIndex + 8 * dir)));
-
-            if (board.Square[squareIndex].IsWhite && squareIndex / 8 == 1) {
-                if (board.Square[squareIndex + 16 * dir].IsNone) {
-                    moves.Add(new Move(new Coord(squareIndex), new Coord(squareIndex + 16 * dir)));
-                }
-            } else if (!board.Square[squareIndex].IsWhite && squareIndex / 8 == 6) {
-                if (board.Square[squareIndex + 16 * dir].IsNone) {
-                    moves.Add(new Move(new Coord(squareIndex), new Coord(squareIndex + 16 * dir)));
-                }
+            // If knight is on the first half of the board, remove all the moves that go to the rightmost two columns
+            // If knight is on the second half of the board, remove all the moves that go to the leftmost two columns
+            if (index % 8 < 4) {
+                moveSet &= ~(Masks.Column[6] | Masks.Column[7]);
+            } else {
+                moveSet &= ~(Masks.Column[0] | Masks.Column[1]);
             }
-        }
 
-        if (board.Square[squareIndex + 7 * dir].IsWhite != board.Square[squareIndex].IsWhite && !board.Square[squareIndex + 7 * dir].IsNone) {
-            moves.Add(new Move(new Coord(squareIndex), new Coord(squareIndex + 7 * dir)));
-        }
+            // Remove all the moves that go to the squares occupied by the same color pieces to avoid same color capturing
+            moveSet &= board.Empty | board.Bitboard[board.IsWhiteTurn ? PieceType.Black : PieceType.White];
+            
+            moves.AddRange(BitboardHelper.ExtractKnightMoves(moveSet, index));
 
-        if (board.Square[squareIndex + 9 * dir].IsWhite != board.Square[squareIndex].IsWhite && !board.Square[squareIndex + 9 * dir].IsNone) {
-            moves.Add(new Move(new Coord(squareIndex), new Coord(squareIndex + 9 * dir)));
+            BitboardHelper.ClearBit(ref knights, index);
         }
 
         return moves;

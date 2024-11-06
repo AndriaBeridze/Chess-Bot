@@ -5,7 +5,7 @@ using Chess.API;
 class FenUtility {
     public static string startingFen = "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr w KQkq - 0 1"; // Default starting position
 
-    private static Dictionary<char, PieceType> pieceTypeByChar = new() {
+    private static Dictionary<char, int> pieceTypeByChar = new() {
         { 'p', PieceType.Pawn },
         { 'n', PieceType.Knight },
         { 'b', PieceType.Bishop },
@@ -25,28 +25,32 @@ class FenUtility {
             if (char.IsDigit(c)) {
                 int emptySquares = c - '0';
                 for (int i = 0; i < emptySquares; i++) {
-                    board.Square[squareIndex] = new Piece(PieceType.None, null);
+                    board.Square[squareIndex] = new Piece(PieceType.None);
                     squareIndex++;
                 }
             } else {
-                PieceType type = pieceTypeByChar[char.ToLower(c)];
+                int type = pieceTypeByChar[char.ToLower(c)];
                 bool isWhite = char.IsUpper(c);
+
+                board.Bitboard[type] |= 1ul << squareIndex;
+                board.Bitboard[isWhite ? PieceType.White : PieceType.Black] |= 1ul << squareIndex;
                 
-                Piece piece = new Piece(type, isWhite);
+                Piece piece = new Piece(type, isWhite ? PieceType.White : PieceType.Black);
 
                 board.Square[squareIndex] = piece;
                 squareIndex++;
+
             }
         }
 
         board.IsWhiteTurn = parts[1] == "w";
 
-        board.WhiteShortCastle = parts[2].Contains('K');
-        board.WhiteLongCastle = parts[2].Contains('Q');
-        board.BlackShortCastle = parts[2].Contains('k');
-        board.BlackLongCastle = parts[2].Contains('q');
+        board.CastlingRights |= parts[2].Contains('K') ? 0b1000 : 0;
+        board.CastlingRights |= parts[2].Contains('Q') ? 0b0100 : 0;
+        board.CastlingRights |= parts[2].Contains('k') ? 0b0010 : 0;
+        board.CastlingRights |= parts[2].Contains('q') ? 0b0001 : 0;
 
-        if (parts[3] != "-") board.enPassantSquare = BoardHelper.SquareIndexFromName(parts[3]);
+        if (parts[3] != "-") board.EnPassantSquare = BoardHelper.SquareIndexFromName(parts[3]);
 
         board.HalfMoveClock = int.Parse(parts[4]);
 
