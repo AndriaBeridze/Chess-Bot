@@ -11,19 +11,19 @@ class Board {
     public int MoveCount = 1;
 
     
-    public Dictionary<int, ulong> Bitboard = new Dictionary<int, ulong> {
-        { PieceType.Pawn, 0 },
-        { PieceType.Knight, 0 },
-        { PieceType.Bishop, 0 },
-        { PieceType.Rook, 0 },
-        { PieceType.Queen, 0 },
-        { PieceType.King, 0 },
-        { PieceType.White, 0 },
-        { PieceType.Black, 0 },
+    public Dictionary<int, Bitboard> Bitboard = new Dictionary<int, Bitboard> {
+        { PieceType.Pawn, new Bitboard(0) },
+        { PieceType.Knight, new Bitboard(0) },
+        { PieceType.Bishop, new Bitboard(0) },
+        { PieceType.Rook, new Bitboard(0) },
+        { PieceType.Queen, new Bitboard(0) },
+        { PieceType.King, new Bitboard(0) },
+        { PieceType.White, new Bitboard(0) },
+        { PieceType.Black, new Bitboard(0) },
     };
 
-    public ulong Occupied => Bitboard[PieceType.White] | Bitboard[PieceType.Black];
-    public ulong Empty => ~Occupied;
+    public Bitboard Occupied => Bitboard[PieceType.White] | Bitboard[PieceType.Black];
+    public Bitboard Empty => ~Occupied;
 
     public Board(string fen) {
         FenUtility.LoadFen(fen, this);

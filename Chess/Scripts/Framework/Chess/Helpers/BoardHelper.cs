@@ -11,11 +11,11 @@ class BoardHelper {
     public const string columNames = "12345678";
 
     public static int ColumnIndex(int squareIndex) {
-        return squareIndex >> 0b00000011;
+        return squareIndex & 0b00000111;
     }
 
     public static int RowIndex(int squareIndex) {
-        return squareIndex & 0b00000111;
+        return squareIndex >> 0b00000011;
     }
 
     public static int IndexFromCoord(int rowIndex, int columnIndex) {

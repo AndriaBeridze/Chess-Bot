@@ -91,6 +91,30 @@ class PositionUI {
             boardUI.Clear();
         }
         if (move != null) {
+            if (board.Square[move.Source].IsKing && Math.Abs(move.Source - move.Target) == 2) {
+                move = new Move(move.Source, move.Target, Move.Castling);
+                int rookSource = move.Target + (move.Target == 62 || move.Target == 6 ? 1 : -2);
+                int rookTarget = move.Target + (move.Target == 62 || move.Target == 6 ? -1 : 1);
+
+                int index = pieces.FindIndex(p => p.Coord.SquareIndex == rookSource);
+                pieces[index].Coord = new Coord(rookTarget);
+                pieces[index].ResetPosition();
+            } 
+            if (board.Square[move.Source].IsPawn && (move.Target < 8 || move.Target > 55)) {
+                move = new Move(move.Source, move.Target, Move.QueenPromotion);
+                
+                int index = pieces.FindIndex(p => p.Coord.SquareIndex == move.Target);
+                pieces[index] = new PieceUI(new Piece(PieceType.Queen, board.IsWhiteTurn ? PieceType.White : PieceType.Black), new Coord(move.Target));
+            }
+            if (board.Square[move.Source].IsPawn && Math.Abs(move.Source - move.Target) % 8 != 0 && board.Square[move.Target].IsNone) {
+                move = new Move(move.Source, move.Target, Move.EnPassant);
+
+                int target = board.IsWhiteTurn ? move.Target - 8 : move.Target + 8;
+                int index = pieces.FindIndex(p => p.Coord.SquareIndex == target);
+
+                pieces.RemoveAt(index);
+            } 
+            
             board.MakeMove(move);
         }
     }

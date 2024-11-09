@@ -18,6 +18,7 @@ class PieceType {
         this.pieceValue = color | type;
     }
 
-    public int Color => pieceValue & 0b00011000;
+    public int FriendlyColor => pieceValue & 0b00011000;
+    public int EnemyColor => FriendlyColor == White ? Black : White;
     public int Type => pieceValue & 0b00000111;
 }

@@ -32,8 +32,8 @@ class FenUtility {
                 int type = pieceTypeByChar[char.ToLower(c)];
                 bool isWhite = char.IsUpper(c);
 
-                board.Bitboard[type] |= 1ul << squareIndex;
-                board.Bitboard[isWhite ? PieceType.White : PieceType.Black] |= 1ul << squareIndex;
+                board.Bitboard[type].SetBit(squareIndex);
+                board.Bitboard[isWhite ? PieceType.White : PieceType.Black].SetBit(squareIndex);
                 
                 Piece piece = new Piece(type, isWhite ? PieceType.White : PieceType.Black);
 

@@ -4,7 +4,7 @@ class Piece {
     private PieceType piece;
 
     public int Type => piece.Type;
-    public int Color => piece.Color;
+    public int Color => piece.FriendlyColor;
 
     public bool IsWhite => Color == PieceType.White;
     public bool IsBlack => Color == PieceType.Black;
