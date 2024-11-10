@@ -15,7 +15,7 @@ class MoveGenerator {
         ];
 
         // If specific square is provided, filter moves to only include moves from that square
-        if (squareIndex != -1)  moves = moves.Where(move => move.Source == squareIndex).ToList();
+        if (squareIndex != null)  moves = moves.Where(move => move.Source == squareIndex).ToList();
 
         return moves;
     }
@@ -398,12 +398,28 @@ class MoveGenerator {
             left = (blackPawns >> 7) & ~Masks.Column[0] & enPassantSquare;
         } 
 
-        Console.WriteLine(enPassantSquare.Binary);
-        Console.WriteLine(right.Binary);
-
         moves.AddRange(BitboardHelper.ExtractPawnMoves(right, board.IsWhiteTurn ? 9 : -9));
         moves.AddRange(BitboardHelper.ExtractPawnMoves(left, board.IsWhiteTurn ? 7 : -7));
 
         return moves;
+    }
+
+    public static List<Move> LegalMoves(Board board, int? index = null) {
+        List<Move> moves = GenerateMoves(board, index);
+        List<Move> legalMoves = new List<Move>();
+
+        foreach (Move move in moves) {
+            board.MakeMove(move);
+
+            Bitboard unsafeSquares = GetUnsafeSquares(board, !board.IsWhiteTurn ? PieceType.White : PieceType.Black);
+
+            if ((unsafeSquares & board.Bitboard[PieceType.King] & board.Bitboard[!board.IsWhiteTurn ? PieceType.White : PieceType.Black]) == Bitboard.Null) {
+                legalMoves.Add(move);
+            }
+
+            board.UnmakeMove(move);
+        }
+
+        return legalMoves;
     }
 }

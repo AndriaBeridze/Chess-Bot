@@ -37,4 +37,9 @@ class Board {
         MoveUtility.MakeMove(this, move);
         SwitchTurn();
     }
+
+    public void UnmakeMove(Move move) {
+        SwitchTurn();
+        MoveUtility.UnmakeMove(this, move);
+    }
 }

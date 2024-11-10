@@ -40,7 +40,7 @@ class PositionUI {
 
                 // If the piece is of the current player, highlight its valid moves
                 if (board.Square[piece.Coord.SquareIndex].IsWhite == board.IsWhiteTurn) {
-                    boardUI.HighlightValidMoves(MoveGenerator.GenerateMoves(board, piece.Coord.SquareIndex));
+                    boardUI.HighlightValidMoves(MoveGenerator.LegalMoves(board, piece.Coord.SquareIndex));
                     boardUI.HighlightSquare(piece.Coord.SquareIndex);
                 }
 
