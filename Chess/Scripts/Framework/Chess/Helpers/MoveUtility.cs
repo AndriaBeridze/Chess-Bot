@@ -22,19 +22,19 @@ class MoveUtility {
         // This will cause the problem if the moved piece and the captured piece are the same
         if (targetPiece.Type != PieceType.None) {
             // Update target piece bitboard
-            board.Bitboard[targetPiece.Type].ClearBit(move.Target);
+            board.Type[targetPiece.Type].ClearBit(move.Target);
 
             // Update enemy color bitboard
-            board.Bitboard[board.IsWhiteTurn ? PieceType.Black : PieceType.White].ClearBit(move.Target);
+            board.Color[!board.IsWhiteTurn].ClearBit(move.Target);
         }
 
         // Update source piece bitboard
-        board.Bitboard[sourcePiece.Type].ClearBit(move.Source);
-        board.Bitboard[sourcePiece.Type].SetBit(move.Target);
+        board.Type[sourcePiece.Type].ClearBit(move.Source);
+        board.Type[sourcePiece.Type].SetBit(move.Target);
 
         // Update friendly color bitboard
-        board.Bitboard[board.IsWhiteTurn ? PieceType.White : PieceType.Black].ClearBit(move.Source);
-        board.Bitboard[board.IsWhiteTurn ? PieceType.White : PieceType.Black].SetBit(move.Target);
+        board.Color[board.IsWhiteTurn].ClearBit(move.Source);
+        board.Color[board.IsWhiteTurn].SetBit(move.Target);
 
         // Update square array
         board.Square[move.Target] = board.Square[move.Source];
@@ -60,8 +60,8 @@ class MoveUtility {
 
         // If promoting, update bitboards and square array
         if (isPromoting) {
-            board.Bitboard[promotingTo.Type].SetBit(move.Target);
-            board.Bitboard[PieceType.Pawn].ClearBit(move.Target);
+            board.Type[promotingTo.Type].SetBit(move.Target);
+            board.Type[PieceType.Pawn].ClearBit(move.Target);
 
             board.Square[move.Target] = promotingTo;
         }
@@ -72,12 +72,12 @@ class MoveUtility {
             int rookTarget = move.Target + (move.Target == 62 || move.Target == 6 ? -1 : 1);
 
             // Update rook bitboard
-            board.Bitboard[PieceType.Rook].ClearBit(rookSource);
-            board.Bitboard[PieceType.Rook].SetBit(rookTarget);
+            board.Type[PieceType.Rook].ClearBit(rookSource);
+            board.Type[PieceType.Rook].SetBit(rookTarget);
 
             // Update friendly color bitboard
-            board.Bitboard[board.IsWhiteTurn ? PieceType.White : PieceType.Black].ClearBit(rookSource);
-            board.Bitboard[board.IsWhiteTurn ? PieceType.White : PieceType.Black].SetBit(rookTarget);
+            board.Color[board.IsWhiteTurn].ClearBit(rookSource);
+            board.Color[board.IsWhiteTurn].SetBit(rookTarget);
 
             // Update square array
             board.Square[rookTarget] = board.Square[rookSource]; 
@@ -89,23 +89,26 @@ class MoveUtility {
             int target = board.IsWhiteTurn ? move.Target - 8 : move.Target + 8;
 
             // Update target piece bitboard
-            board.Bitboard[PieceType.Pawn].ClearBit(target);
+            board.Type[PieceType.Pawn].ClearBit(target);
 
             // Update enemy color bitboard
-            board.Bitboard[board.IsWhiteTurn ? PieceType.Black : PieceType.White].ClearBit(target);
+            board.Color[!board.IsWhiteTurn].ClearBit(target);
 
             // Update square array
             board.Square[target] = new Piece(PieceType.None);
         }
 
+        // Update en passant square
         if (sourcePiece.Type == PieceType.Pawn && Math.Abs(move.Source - move.Target) == 16) {
             board.EnPassantSquare = board.IsWhiteTurn ? move.Source + 8 : move.Source - 8;
         }
 
+        // If king moves, update castling rights
         if (sourcePiece.Type == PieceType.King) {
             board.CastlingRights &= board.IsWhiteTurn ? 0b0011 : 0b1100;
         }
 
+        // If rook either moves of gets captured, update castling rights
         if (sourcePiece.Type == PieceType.Rook) {
             if (move.Source == 0) {
                 board.CastlingRights &= 0b1011;
@@ -135,22 +138,22 @@ class MoveUtility {
         board.EnPassantSquare = -1;
 
         // Restore source piece bitboard
-        board.Bitboard[board.Square[move.Target].Type].ClearBit(move.Target);
-        board.Bitboard[board.Square[move.Target].Type].SetBit(move.Source);
+        board.Type[board.Square[move.Target].Type].ClearBit(move.Target);
+        board.Type[board.Square[move.Target].Type].SetBit(move.Source);
 
         // Restore friendly color bitboard
-        board.Bitboard[board.IsWhiteTurn ? PieceType.White : PieceType.Black].ClearBit(move.Target);
-        board.Bitboard[board.IsWhiteTurn ? PieceType.White : PieceType.Black].SetBit(move.Source);
+        board.Color[board.IsWhiteTurn].ClearBit(move.Target);
+        board.Color[board.IsWhiteTurn].SetBit(move.Source);
 
         // Undo en passant
         if (move.Flag == Move.EnPassant) {
             int target = board.IsWhiteTurn ? move.Target - 8 : move.Target + 8;
 
             // Restore target piece bitboard
-            board.Bitboard[PieceType.Pawn].SetBit(target);
+            board.Type[PieceType.Pawn].SetBit(target);
 
             // Restore enemy color bitboard
-            board.Bitboard[board.IsWhiteTurn ? PieceType.Black : PieceType.White].SetBit(target);
+            board.Color[!board.IsWhiteTurn].SetBit(target);
 
             // Restore square array
             board.Square[target] = new Piece(board.IsWhiteTurn ? PieceType.Black : PieceType.White, PieceType.Pawn);
@@ -165,12 +168,12 @@ class MoveUtility {
             int rookTarget = move.Target + (move.Target == 62 || move.Target == 6 ? -1 : 1);
 
             // Restore rook bitboard
-            board.Bitboard[PieceType.Rook].SetBit(rookSource);
-            board.Bitboard[PieceType.Rook].ClearBit(rookTarget);
+            board.Type[PieceType.Rook].SetBit(rookSource);
+            board.Type[PieceType.Rook].ClearBit(rookTarget);
 
             // Restore friendly color bitboard
-            board.Bitboard[board.IsWhiteTurn ? PieceType.White : PieceType.Black].SetBit(rookSource);
-            board.Bitboard[board.IsWhiteTurn ? PieceType.White : PieceType.Black].ClearBit(rookTarget);
+            board.Color[board.IsWhiteTurn].SetBit(rookSource);
+            board.Color[board.IsWhiteTurn].ClearBit(rookTarget);
 
             // Restore square array
             board.Square[rookSource] = board.Square[rookTarget];
@@ -187,8 +190,8 @@ class MoveUtility {
             else promotingToType = PieceType.Knight;
 
             // Restore bitboards
-            board.Bitboard[promotingToType].ClearBit(move.Source);
-            board.Bitboard[PieceType.Pawn].SetBit(move.Source);
+            board.Type[promotingToType].ClearBit(move.Source);
+            board.Type[PieceType.Pawn].SetBit(move.Source);
 
             // Restore square array
             board.Square[move.Target] = new Piece(PieceType.Pawn, board.IsWhiteTurn ? PieceType.White : PieceType.Black);
@@ -196,8 +199,8 @@ class MoveUtility {
 
         // Restore target piece bitboard if it was captured
         if (killedPiece[killedPiece.Count - 1].Type != PieceType.None) {
-            board.Bitboard[killedPiece[killedPiece.Count - 1].Type].SetBit(move.Target);
-            board.Bitboard[board.IsWhiteTurn ? PieceType.Black : PieceType.White].SetBit(move.Target);
+            board.Type[killedPiece[killedPiece.Count - 1].Type].SetBit(move.Target);
+            board.Color[!board.IsWhiteTurn].SetBit(move.Target);
         }
 
         // Restore square array

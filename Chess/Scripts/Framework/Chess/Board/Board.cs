@@ -10,19 +10,23 @@ class Board {
     public int HalfMoveClock = 0;
     public int MoveCount = 1;
 
-    
-    public Dictionary<int, Bitboard> Bitboard = new Dictionary<int, Bitboard> {
+    // Bitboard for pieces
+    public Dictionary<int, Bitboard> Type = new Dictionary<int, Bitboard> {
         { PieceType.Pawn, new Bitboard(0) },
         { PieceType.Knight, new Bitboard(0) },
         { PieceType.Bishop, new Bitboard(0) },
         { PieceType.Rook, new Bitboard(0) },
         { PieceType.Queen, new Bitboard(0) },
         { PieceType.King, new Bitboard(0) },
-        { PieceType.White, new Bitboard(0) },
-        { PieceType.Black, new Bitboard(0) },
     };
 
-    public Bitboard Occupied => Bitboard[PieceType.White] | Bitboard[PieceType.Black];
+    // Bitboard for colors
+    public Dictionary<bool, Bitboard> Color = new Dictionary<bool, Bitboard> {
+        { true, new Bitboard(0) }, // White
+        { false, new Bitboard(0) }, // Black
+    };
+
+    public Bitboard Occupied => Color[true] | Color[false];
     public Bitboard Empty => ~Occupied;
 
     public Board(string fen) {
@@ -36,9 +40,11 @@ class Board {
     public void MakeMove(Move move) {
         MoveUtility.MakeMove(this, move);
         SwitchTurn();
+        if (IsWhiteTurn) MoveCount++;
     }
 
     public void UnmakeMove(Move move) {
+        if (IsWhiteTurn) MoveCount--;
         SwitchTurn();
         MoveUtility.UnmakeMove(this, move);
     }
