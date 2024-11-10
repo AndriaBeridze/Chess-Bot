@@ -1,12 +1,10 @@
 ﻿namespace Chess.App;
 
-using Raylib_cs;
-using Chess.API;
-using Chess.Test;
+using Chess.Testing;
 
 class Program {
     static void Main(string[] args) {
-        Test.TestPosition("");
+        Tester.Test();
 
         // Raylib.SetTraceLogLevel(TraceLogLevel.None);
         // Raylib.InitWindow(Theme.ScreenWidth, Theme.ScreenHeight, "Chess by Andria Beridze");
