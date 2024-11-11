@@ -6,12 +6,20 @@ using Chess.API;
 class Tester {
     private static string[] fenTests = [
         "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr w KQkq - 0 1",
-        "RNBQK2R/PPP1NnPP/8/2B5/8/2p5/pp1Pbppp/rnbq1k1r w KQ - 1 8"
+        "RNBQK2R/PPP1NnPP/8/2B5/8/2p5/pp1Pbppp/rnbq1k1r w KQ - 1 8",
+        "R3K2R/PPPBBPPP/2N2Q1p/1p2P3/3PN3/bn2pnp1/p1ppqpb1/r3k2r w KQkq - 0 20",
+        "8/4P1P1/8/1R3p1k/KP5r/3p4/2p5/8 w - - 0 40",
+        "R2Q1RK1/Pp1P2PP/q4N2/BBP1P3/nP6/1b3nbN/Pppp1ppp/r3k2r w kq - 0 1",
+        "R4RK1/1PP1QPPP/P1NP1N2/2B1P1b1/2b1p1B1/p1np1n2/1pp1qppp/r4rk1/ w - - 0 10 "
     ];
 
     private static int[][] numPositions = [
         [20, 400, 8902, 197281, 4865609],
-        [44, 1486, 62379, 2103487]
+        [44, 1486, 62379, 2103487],
+        [48, 2039, 97862, 4085603],
+        [14, 191, 2812, 43238, 674624, 11030083],
+        [6, 264, 9467, 422333, 15833292],
+        [46, 2079, 89890, 3894594]
     ];
 
     public static void Test() {
@@ -67,7 +75,7 @@ class Tester {
     private static int CountNumPosition(Board board, int depth) {
         if (depth == 0) return 1;
 
-        List<Move> moves = MoveGenerator.LegalMoves(board);
+        List<Move> moves = MoveGenerator.GenerateMoves(board);
         int sum = 0;
 
         foreach(Move move in moves) {
