@@ -24,4 +24,9 @@ class Theme {
 
     public static Color SelectedLight = new Color(245, 246, 130, 255);
     public static Color SelectedDark = new Color(185, 202, 67, 255);
+
+    public static Color CheckmateTextColor = new Color(200, 63, 73, 255);
+    public static Color StalemateTextColor = new Color(73, 151, 208, 255);
+    public static Color DrawTextColor = new Color(249, 228, 188, 255);
+
 }

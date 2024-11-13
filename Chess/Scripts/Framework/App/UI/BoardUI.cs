@@ -39,6 +39,7 @@ class BoardUI {
     // To highlight the last move on the board
     public void SetLastMove(Move? move) {
         lastMove = move;
+        Clear();
     }
 
     public bool IsValidToMove(int index) {

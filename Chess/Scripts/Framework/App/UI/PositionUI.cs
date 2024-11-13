@@ -4,6 +4,7 @@ using System.Numerics;
 using Raylib_cs;
 using Chess.ChessEngine;
 using Chess.API;
+using System.Security.Cryptography.X509Certificates;
 
 class PositionUI {
     private List<PieceUI> pieces;
@@ -91,6 +92,7 @@ class PositionUI {
             boardUI.Clear();
         }
         if (move != null) {
+            // Castle
             if (board.Square[move.Source].IsKing && Math.Abs(move.Source - move.Target) == 2) {
                 move = new Move(move.Source, move.Target, Move.Castling);
                 int rookSource = move.Target + (move.Target == 62 || move.Target == 6 ? 1 : -2);
@@ -100,12 +102,14 @@ class PositionUI {
                 pieces[index].Coord = new Coord(rookTarget);
                 pieces[index].ResetPosition();
             } 
+            // Promotion
             if (board.Square[move.Source].IsPawn && (move.Target < 8 || move.Target > 55)) {
                 move = new Move(move.Source, move.Target, Move.QueenPromotion);
                 
                 int index = pieces.FindIndex(p => p.Coord.SquareIndex == move.Target);
                 pieces[index] = new PieceUI(new Piece(PieceType.Queen, board.IsWhiteTurn ? PieceType.White : PieceType.Black), new Coord(move.Target));
             }
+            // En passant
             if (board.Square[move.Source].IsPawn && Math.Abs(move.Source - move.Target) % 8 != 0 && board.Square[move.Target].IsNone) {
                 move = new Move(move.Source, move.Target, Move.EnPassant);
 
@@ -116,6 +120,61 @@ class PositionUI {
             } 
             
             board.MakeMove(move);
+        }
+    }
+
+    public float Distance(float startX, float startY, float endX, float endY) {
+        return (float) Math.Sqrt((startX - endX) * (startX - endX) + (startY - endY) * (startY - endY));
+    }
+
+    public void AnimateMove(Move move, Board board) {
+        int index = pieces.FindIndex(p => p.Coord.SquareIndex == move.Source);
+
+        if (pieces.FindIndex(p => p.Coord.SquareIndex == move.Target) != -1) {
+            int targetIndex = pieces.FindIndex(p => p.Coord.SquareIndex == move.Target);
+            pieces.RemoveAt(targetIndex);
+            if (index > targetIndex) index--;
+        }
+
+        // Swap the piece at index and the last piece
+        var temp = pieces[index];
+        pieces[index] = pieces[pieces.Count - 1];
+        pieces[pieces.Count - 1] = temp;
+        index = pieces.Count - 1;
+
+        pieces[index].Coord = new Coord(move.Target);
+        pieces[index].ResetPosition();
+
+        // Promotion
+        // Change image of the piece to the promoted piece
+        if (move.Flag == Move.QueenPromotion) {
+            pieces[index] = new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Queen), new Coord(move.Target));
+        } else if (move.Flag == Move.KnightPromotion) {
+            pieces[index] = new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Knight), new Coord(move.Target));
+        } else if (move.Flag == Move.RookPromotion) {
+            pieces[index] = new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Rook), new Coord(move.Target));
+        } else if (move.Flag == Move.BishopPromotion) {
+            pieces[index] = new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Bishop), new Coord(move.Target));
+        }
+
+        // Castle
+        // Move the rook to the other side of the king
+        if (move.Flag == Move.Castling) {
+            int rookSource = move.Target + (move.Target == 62 || move.Target == 6 ? 1 : -2);
+            int rookTarget = move.Target + (move.Target == 62 || move.Target == 6 ? -1 : 1);
+
+            int rookIndex = pieces.FindIndex(p => p.Coord.SquareIndex == rookSource);
+
+            pieces[rookIndex].Coord = new Coord(rookTarget);
+            pieces[rookIndex].ResetPosition();
+        }
+
+        // En passant
+        // Remove the piece that was killed
+        if (move.Flag == Move.EnPassant) {
+            int target = board.IsWhiteTurn ? move.Target - 8 : move.Target + 8;
+            index = pieces.FindIndex(p => p.Coord.SquareIndex == target);
+            pieces.RemoveAt(index);
         }
     }
 

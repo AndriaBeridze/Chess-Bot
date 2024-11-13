@@ -3,10 +3,6 @@ namespace Chess.ChessEngine;
 using Chess.API;
 
 class BoardHelper {
-
-    public Coord[] RookDirections = { new Coord(-1, 0), new Coord(1, 0), new Coord(0, 1), new Coord(0, -1) };
-    public Coord[] BishopDirections = { new Coord(-1, 1), new Coord(1, 1), new Coord(1, -1), new Coord(-1, -1) };
-
     public const string rowNames = "abcdefgh";
     public const string columNames = "12345678";
 

@@ -6,11 +6,19 @@ using Chess.API;
 class MoveUtility {
     static List<Piece> killedPiece = new List<Piece>();
     static List<int> castlingRights = new List<int>();
+    static List<int> halfMoveClock = new List<int>();
 
 
     public static void MakeMove(Board board, Move move) {
+        if (!board.Square[move.Source].IsNone || board.Square[move.Source].Type == PieceType.Pawn) {
+            board.HalfMoveClock = 0;
+        } else {
+            board.HalfMoveClock++;
+        }
+
         killedPiece.Add(board.Square[move.Target]);
         castlingRights.Add(board.CastlingRights);
+        halfMoveClock.Add(board.HalfMoveClock);
 
         board.EnPassantSquare = -1;
 
@@ -210,8 +218,12 @@ class MoveUtility {
         // Restore castling rights
         board.CastlingRights = castlingRights[castlingRights.Count - 1];
 
+        // Update halfmove clock
+        board.HalfMoveClock = halfMoveClock[halfMoveClock.Count - 1];
+
         // Remove last elements from history
         killedPiece.RemoveAt(killedPiece.Count - 1);
         castlingRights.RemoveAt(castlingRights.Count - 1);
+        halfMoveClock.RemoveAt(halfMoveClock.Count - 1);
     }
 }

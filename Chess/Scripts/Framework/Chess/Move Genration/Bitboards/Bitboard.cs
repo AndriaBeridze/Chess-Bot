@@ -11,7 +11,7 @@ class Bitboard {
     public void ClearBit(int index) => Value &= ~(1UL << index);
 
     // For example 1236 is 10011010100 in binary 
-    // The result of the function will be 2, because rightmost bit that is 1 is at index 0
+    // The result of the function will be 2, because rightmost bit that is 1 is at index 2
     public int FirstBit => (int) Math.Log2(Value & (ulong) - (long) Value);
     
     public bool IsEmpty => this == Null;
@@ -33,6 +33,8 @@ class Bitboard {
     
     public static Bitboard Null => new Bitboard(0);
 
+    // Reverses bitboard
+    // 100101011101010 -> 010101110101001
     public Bitboard Reverse() {
         ulong value = this.Value;
 
@@ -46,6 +48,22 @@ class Bitboard {
         return new Bitboard(value);
     }
 
+    // Good for testing purposes
+    // 13 -> 1101
     public string Binary => Convert.ToString((long) Value, 2).PadLeft(64, '0');
+
+    // Counts the number of bits that are set to 1
+    // 100101011101010 -> 8
+    public int Count() {
+        Bitboard temp = new Bitboard(this.Value);
+
+        int cnt = 0;
+        while (!temp.IsEmpty) {
+            temp.ClearBit(temp.FirstBit);
+            cnt++;
+        }
+
+        return cnt;
+    }
 }
 

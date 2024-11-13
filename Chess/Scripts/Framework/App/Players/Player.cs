@@ -1,6 +1,9 @@
 namespace Chess.App;
 
-class Player {
+using Chess.API;
+using Chess.ChessEngine;
+
+abstract class Player {
     public bool IsWhite;
     public bool IsBlack => !IsWhite;
 
@@ -18,4 +21,6 @@ class Player {
     public override String ToString() {
         return $"{ PlayerType } | { Color }";
     }
+
+    public abstract Move Search(Board board);
 }

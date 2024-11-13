@@ -13,6 +13,7 @@ class MoveGenerator {
         GenerateAttackRays(board);
         GetPinnedPieces(board);
 
+        // If double check, only king can move
         if (attackerIndexes.Count == 2) {
             attackRays = Bitboard.Null;
         }
@@ -234,6 +235,15 @@ class MoveGenerator {
         return moves;
     }
 
+    // Generate attack rays for the current player
+    // If queen on d5 is attacking the king on d8, the attack ray is d5-d8
+    //     - All the bits corresponding to the squares between d5 and d8 are set to 1
+    // Key idea:
+    //     - Treat friendly king as an every piece combined and generate attack rays
+    //     - Check if the attack rays intersect with any of the enemy pieces
+    //     - If the above condition is met, the piece is attacking the king
+    //     - Get the ray by bitwise AND the move mask from king and from the enemy piece
+    //     - Update the attack rays
     public static void GenerateAttackRays(Board board) {
         attackRays = new Bitboard(0xFFFFFFFFFFFFFFFF);
         Bitboard temp = new Bitboard(0x0000000000000000);
@@ -316,6 +326,14 @@ class MoveGenerator {
         attackRays &= temp;
     }
 
+
+    // Get all the pinned pieces
+    // Key idea:
+    //     - Treat king as a sliding piece and generate attack rays
+    //     - Check if king rays intersect with any of the enemy sliding pieces and king is not in check
+    //         - If the above condition is met, the piece is pinned
+    //     - Generate the pin mask for the pinned piece
+    //     - Add the pinned piece to the pins dictionary to access it later
     public static void GetPinnedPieces(Board board) {
         pins.Clear();
 

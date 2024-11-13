@@ -6,7 +6,7 @@ using Chess.API;
 
 class PieceUI {
     public Coord Coord;
-    public int X, Y;
+    public float X, Y;
     private string imgURL = "Chess/Resources/Sprites/"; // Every piece image is stored in this directory
     private Texture2D texture; // Preloaded texture to avoid loading it every frame
 
