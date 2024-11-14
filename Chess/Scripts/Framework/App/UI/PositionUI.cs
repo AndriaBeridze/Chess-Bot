@@ -25,6 +25,10 @@ class PositionUI {
         }
     }
 
+    public void SetPiece(int index, Piece piece) {
+        pieces[pieces.FindIndex(piece => piece.Coord == new Coord(index))] = new PieceUI(piece, new Coord(index));
+    }
+
     public void Update(Board board, BoardUI boardUI) {
         Move? move = null;
         
@@ -127,7 +131,7 @@ class PositionUI {
         return (float) Math.Sqrt((startX - endX) * (startX - endX) + (startY - endY) * (startY - endY));
     }
 
-    public void AnimateMove(Move move, Board board) {
+    public async Task AnimateMove(Move move, Board board) {
         int index = pieces.FindIndex(p => p.Coord.SquareIndex == move.Source);
 
         if (pieces.FindIndex(p => p.Coord.SquareIndex == move.Target) != -1) {
@@ -135,27 +139,50 @@ class PositionUI {
             pieces.RemoveAt(targetIndex);
             if (index > targetIndex) index--;
         }
-
         // Swap the piece at index and the last piece
         var temp = pieces[index];
         pieces[index] = pieces[pieces.Count - 1];
         pieces[pieces.Count - 1] = temp;
         index = pieces.Count - 1;
 
+        // Animate the move
+        int frames = 15;
+        
+        float startX = pieces[index].X;
+        float startY = pieces[index].Y;
+        float endX = UIHelper.GetScreenX(move.Target % 8);
+        float endY = UIHelper.GetScreenY(move.Target / 8);
+        float dx = (endX - startX) / frames;
+        float dy = (endY - startY) / frames;
+
+        await Task.Run(async () => {
+            for (int i = 0; i < frames; i++) {
+                pieces[index].X += dx;
+                pieces[index].Y += dy;
+                await Task.Delay(1000 / 60);
+            }
+        });
+
         pieces[index].Coord = new Coord(move.Target);
         pieces[index].ResetPosition();
 
+        await Task.Delay(10);
+
         // Promotion
-        // Change image of the piece to the promoted piece
-        if (move.Flag == Move.QueenPromotion) {
-            pieces[index] = new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Queen), new Coord(move.Target));
-        } else if (move.Flag == Move.KnightPromotion) {
-            pieces[index] = new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Knight), new Coord(move.Target));
-        } else if (move.Flag == Move.RookPromotion) {
-            pieces[index] = new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Rook), new Coord(move.Target));
-        } else if (move.Flag == Move.BishopPromotion) {
-            pieces[index] = new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Bishop), new Coord(move.Target));
-        }
+        // Replace the pawn with a queen
+        // if (move.Flag == Move.QueenPromotion) {
+        //     pieces.Add(new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Queen), new Coord(move.Target)));
+        //     pieces.RemoveAt(index);
+        // } else if (move.Flag == Move.KnightPromotion) {
+        //     pieces.Add(new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Knight), new Coord(move.Target)));
+        //     pieces.RemoveAt(index);
+        // } else if (move.Flag == Move.BishopPromotion) {
+        //     pieces.Add(new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Bishop), new Coord(move.Target)));
+        //     pieces.RemoveAt(index);
+        // } else if (move.Flag == Move.RookPromotion) {
+        //     pieces.Add(new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Rook), new Coord(move.Target)));
+        //     pieces.RemoveAt(index);
+        // }
 
         // Castle
         // Move the rook to the other side of the king

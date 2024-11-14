@@ -36,7 +36,7 @@ class Game {
         gameStatus = new GameStatus("");
     }
 
-    public void Update() {
+    public async void Update() {
         if (Arbiter.IsCheckmate(board)) {
             gameStatus.Text = "Checkmate";
             gameStatus.Color = Theme.CheckmateTextColor;
@@ -51,6 +51,8 @@ class Game {
             return;
         }
 
+        positionUI.Update(board, boardUI);
+
         // Displaying bot moves
         Player currentPlayer = board.IsWhiteTurn ? whitePlayer : blackPlayer;
         if (currentPlayer.IsBot && isBotCheckAllowed) {
@@ -58,16 +60,12 @@ class Game {
             Move bestMove = currentPlayer.Search(board);
 
             boardUI.SetLastMove(bestMove);
-            positionUI.AnimateMove(bestMove, board);
-                
-            isBotCheckAllowed = true;
-            
-            board.MakeMove(bestMove);
+            await positionUI.AnimateMove(bestMove, board).ContinueWith(_ => {
+                isBotCheckAllowed = true;
 
-            System.Threading.Thread.Sleep(200);
+                board.MakeMove(bestMove);
+            });
         }
-
-        positionUI.Update(board, boardUI);
     }
 
     public void Render() {
