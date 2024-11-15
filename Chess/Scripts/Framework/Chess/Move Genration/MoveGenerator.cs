@@ -32,6 +32,12 @@ class MoveGenerator {
         return moves;
     }
 
+    public static List<Move> GenerateCaptureMoves(Board board) {
+        List<Move> moves = GenerateMoves(board);
+
+        return moves.Where(move => board.Square[move.Target].Type != PieceType.None).ToList();
+    }
+
     public static List<Move> PawnMoves(Board board) {
         List<Move> moves = new List<Move>();
 
