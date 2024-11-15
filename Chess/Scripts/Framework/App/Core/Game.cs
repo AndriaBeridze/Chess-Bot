@@ -17,8 +17,6 @@ class Game {
 
     public Board board;
 
-    private bool isBotCheckAllowed = true;
-
     public Game(Player whitePlayer, Player blackPlayer, string fen, bool isWhitePerspective) {
         this.whitePlayer = whitePlayer;
         this.blackPlayer = blackPlayer;
@@ -36,7 +34,7 @@ class Game {
         gameStatus = new GameStatus("");
     }
 
-    public async void Update() {
+    public void Update() {
         if (Arbiter.IsCheckmate(board)) {
             gameStatus.Text = "Checkmate";
             gameStatus.Color = Theme.CheckmateTextColor;
@@ -51,21 +49,17 @@ class Game {
             return;
         }
 
-        positionUI.Update(board, boardUI);
-
         // Displaying bot moves
         Player currentPlayer = board.IsWhiteTurn ? whitePlayer : blackPlayer;
-        if (currentPlayer.IsBot && isBotCheckAllowed) {
-            isBotCheckAllowed = false;
-            Move bestMove = currentPlayer.Search(board);
+        if (currentPlayer.IsBot) {
+            Move move = currentPlayer.Search(board);
 
-            boardUI.SetLastMove(bestMove);
-            await positionUI.AnimateMove(bestMove, board).ContinueWith(_ => {
-                isBotCheckAllowed = true;
-
-                board.MakeMove(bestMove);
-            });
+            positionUI.AnimateMove(move, board);
+            board.MakeMove(move);
+            boardUI.SetLastMove(move);
         }
+
+        positionUI.Update(board, boardUI);
     }
 
     public void Render() {

@@ -127,11 +127,7 @@ class PositionUI {
         }
     }
 
-    public float Distance(float startX, float startY, float endX, float endY) {
-        return (float) Math.Sqrt((startX - endX) * (startX - endX) + (startY - endY) * (startY - endY));
-    }
-
-    public async Task AnimateMove(Move move, Board board) {
+    public void AnimateMove(Move move, Board board) {
         int index = pieces.FindIndex(p => p.Coord.SquareIndex == move.Source);
 
         if (pieces.FindIndex(p => p.Coord.SquareIndex == move.Target) != -1) {
@@ -155,18 +151,8 @@ class PositionUI {
         float dx = (endX - startX) / frames;
         float dy = (endY - startY) / frames;
 
-        await Task.Run(async () => {
-            for (int i = 0; i < frames; i++) {
-                pieces[index].X += dx;
-                pieces[index].Y += dy;
-                await Task.Delay(1000 / 60);
-            }
-        });
-
         pieces[index].Coord = new Coord(move.Target);
         pieces[index].ResetPosition();
-
-        await Task.Delay(10);
 
         // Promotion
         // Replace the pawn with a queen

@@ -5,18 +5,18 @@ using Chess.ChessEngine;
 
 class Bot {
     static Random rnd = new Random();
-    static int positiveInfinity = 1000000;
-    static int negativeInfinity = -1000000;
+    const int positiveInfinity = 1000000;
+    const int negativeInfinity = -1000000;
     static Move bestMove = Move.NullMove;
 
     public static Move Think(Board board) {
         bestMove = Move.NullMove;
-        Search(board, 3);
+        Search(board, 5);
 
         return bestMove;
     }
 
-    public static int Search(Board board, int depth, bool firstCall = true) {
+    public static int Search(Board board, int depth, bool firstCall = true, int alpha = negativeInfinity, int beta = positiveInfinity) {
         if (depth == 0) return Evaluation.Evaluate(board);
 
         List<Move> moves = MoveGenerator.GenerateMoves(board);
@@ -27,21 +27,23 @@ class Bot {
             return 0;
         }
 
-        int bestEval = negativeInfinity;
         foreach (Move move in moves) {
             board.MakeMove(move);
+            int eval = -Search(board, depth - 1, false, -beta, -alpha);
+            board.UnmakeMove(move);
 
-            int eval = -Search(board, depth - 1, false);
-            if (eval > bestEval) {
-                bestEval = eval;
+            if (eval >= beta) {
+                return beta;
+            }
+
+            if (alpha < eval) {
+                alpha = eval;
                 if (firstCall) {
                     bestMove = move;
                 }
             }
-
-            board.UnmakeMove(move);
         }
 
-        return bestEval;
+        return alpha;
     }
 }
