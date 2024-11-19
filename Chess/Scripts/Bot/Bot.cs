@@ -19,7 +19,7 @@ class Bot {
     };
 
     public static Move Think(Board board) {
-        Search(board, 5);
+        Search(board, 4);
 
         return bestMove;
     }
@@ -31,7 +31,7 @@ class Bot {
         Order(ref moves, board);
         if (moves.Count == 0) {
             if (BitboardHelper.IsInCheck(board, board.IsWhiteTurn)) {
-                return negativeInfinity;
+                return negativeInfinity / 2 - depth;
             }
             return 0;
         }

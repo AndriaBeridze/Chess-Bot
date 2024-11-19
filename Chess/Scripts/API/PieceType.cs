@@ -3,16 +3,16 @@ namespace Chess.API;
 class PieceType {
     private int pieceValue;
 
-    public static int None = 0;
-    public static int Pawn = 1;
-    public static int Knight = 2;
-    public static int Bishop = 3;
-    public static int Rook = 4;
-    public static int Queen = 5;
-    public static int King = 6; 
+    public const int None = 0;
+    public const int Pawn = 1;
+    public const int Knight = 2;
+    public const int Bishop = 3;
+    public const int Rook = 4;
+    public const int Queen = 5;
+    public const int King = 6; 
 
-    public static int White = 8;
-    public static int Black = 16;
+    public const int White = 8;
+    public const int Black = 16;
 
     public PieceType(int color, int type = 0) {
         this.pieceValue = color | type;

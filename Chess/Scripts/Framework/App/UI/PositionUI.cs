@@ -135,21 +135,6 @@ class PositionUI {
             pieces.RemoveAt(targetIndex);
             if (index > targetIndex) index--;
         }
-        // Swap the piece at index and the last piece
-        var temp = pieces[index];
-        pieces[index] = pieces[pieces.Count - 1];
-        pieces[pieces.Count - 1] = temp;
-        index = pieces.Count - 1;
-
-        // Animate the move
-        int frames = 15;
-        
-        float startX = pieces[index].X;
-        float startY = pieces[index].Y;
-        float endX = UIHelper.GetScreenX(move.Target % 8);
-        float endY = UIHelper.GetScreenY(move.Target / 8);
-        float dx = (endX - startX) / frames;
-        float dy = (endY - startY) / frames;
 
         pieces[index].Coord = new Coord(move.Target);
         pieces[index].ResetPosition();

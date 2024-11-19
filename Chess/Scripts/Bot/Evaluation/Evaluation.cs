@@ -14,6 +14,7 @@ class Evaluation {
         int eval = 0;
 
         eval += CalculateMaterialWorth(board, true) - CalculateMaterialWorth(board, false);
+        eval += CalculateBonus(board, true) - CalculateBonus(board, false);
 
         return eval * (board.IsWhiteTurn ? 1 : -1);
     }   
@@ -28,5 +29,36 @@ class Evaluation {
         eval += (board.Type[PieceType.Queen] & board.Color[isWhite]).Count() * Queen;
 
         return eval;
+    }
+
+    private static int CalculateBonus(Board board, bool isWhite) {
+        int bonus = 0;
+
+        for (int i = 0; i < 64; i++) {
+            if (board.Square[i].IsWhite == isWhite) {
+                switch (board.Square[i].Type) {
+                    case PieceType.Pawn:
+                        bonus += Bonus.PawnBonusMap[isWhite ? i : 63 - i];
+                        break;
+                    case PieceType.Knight:
+                        bonus += Bonus.KnightBonusMap[i];
+                        break;
+                    case PieceType.Bishop:
+                        bonus += Bonus.BishopBonusMap[i];
+                        break;
+                    case PieceType.Rook:
+                        bonus += Bonus.RookBonusMap[i];
+                        break;
+                    case PieceType.Queen:
+                        bonus += Bonus.QueenBonusMap[i];
+                        break;
+                    case PieceType.King:
+                        bonus += Bonus.KingBonusMap[isWhite ? i : 63 - i];
+                        break;
+                }
+            }
+        }
+
+        return bonus;
     }
 }
