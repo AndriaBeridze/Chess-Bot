@@ -4,18 +4,21 @@ using Raylib_cs;
 using Chess.API;
 using Chess.ChessEngine;
 using System.Runtime.CompilerServices;
+using Chess.Bot;
 
 class Game {
     private Player whitePlayer;
     private Player blackPlayer;
 
-    public BoardUI boardUI;
-    public CoordUI coordUI;
-    public PositionUI positionUI;
-    public PlayerUI playerUI;
-    public GameStatus gameStatus;
+    private BoardUI boardUI;
+    private CoordUI coordUI;
+    private PositionUI positionUI;
+    private PlayerUI playerUI;
+    private GameStatus gameStatus;
 
-    public Board board;
+    private Board board;
+ 
+    private OpeningBook openingBook;
 
     public Game(Player whitePlayer, Player blackPlayer, string fen, bool isWhitePerspective) {
         this.whitePlayer = whitePlayer;
@@ -32,30 +35,32 @@ class Game {
         playerUI = new PlayerUI(whitePlayer.PlayerType, blackPlayer.PlayerType);
 
         gameStatus = new GameStatus("");
+
+        openingBook = new OpeningBook();
     }
 
     public void Update() {
-        if (Arbiter.IsCheckmate(board)) {
-            gameStatus.Text = "Checkmate";
-            gameStatus.Color = Theme.CheckmateTextColor;
-            return; 
-        } else if (Arbiter.IsStalemate(board)) {
-            gameStatus.Text = "Stalemate";
-            gameStatus.Color = Theme.StalemateTextColor;
-            return;
-        } else if (Arbiter.IsDraw(board)) {
-            gameStatus.Text = "Draw";
-            gameStatus.Color = Theme.DrawTextColor;
+        string status = Arbiter.Status(board);
+        if (status != "") {
+            Color color = Color.White;
+
+            if (status == "Checkmate") color = Theme.CheckmateTextColor;
+            if (status == "Stalemate") color = Theme.StalemateTextColor;
+            if (status == "Draw") color = Theme.DrawTextColor;
+
+            gameStatus = new GameStatus(status, color);
+
             return;
         }
 
         // Displaying bot moves
         Player currentPlayer = board.IsWhiteTurn ? whitePlayer : blackPlayer;
         if (currentPlayer.IsBot) {
-            Move move = currentPlayer.Search(board);
+            Move move = openingBook.GetMove(board.MovesMade);
+            if (move.IsNull) move = currentPlayer.Search(board);
 
             positionUI.AnimateMove(move, board);
-            board.MakeMove(move);
+            board.MakeMove(move, record : true);
             boardUI.SetLastMove(move);
         }
 

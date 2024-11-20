@@ -123,7 +123,7 @@ class PositionUI {
                 pieces.RemoveAt(index);
             } 
             
-            board.MakeMove(move);
+            board.MakeMove(move, record : true);
         }
     }
 
@@ -141,19 +141,19 @@ class PositionUI {
 
         // Promotion
         // Replace the pawn with a queen
-        // if (move.Flag == Move.QueenPromotion) {
-        //     pieces.Add(new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Queen), new Coord(move.Target)));
-        //     pieces.RemoveAt(index);
-        // } else if (move.Flag == Move.KnightPromotion) {
-        //     pieces.Add(new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Knight), new Coord(move.Target)));
-        //     pieces.RemoveAt(index);
-        // } else if (move.Flag == Move.BishopPromotion) {
-        //     pieces.Add(new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Bishop), new Coord(move.Target)));
-        //     pieces.RemoveAt(index);
-        // } else if (move.Flag == Move.RookPromotion) {
-        //     pieces.Add(new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Rook), new Coord(move.Target)));
-        //     pieces.RemoveAt(index);
-        // }
+        if (move.Flag == Move.QueenPromotion) {
+            pieces.Add(new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Queen), new Coord(move.Target)));
+            pieces.RemoveAt(index);
+        } else if (move.Flag == Move.KnightPromotion) {
+            pieces.Add(new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Knight), new Coord(move.Target)));
+            pieces.RemoveAt(index);
+        } else if (move.Flag == Move.BishopPromotion) {
+            pieces.Add(new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Bishop), new Coord(move.Target)));
+            pieces.RemoveAt(index);
+        } else if (move.Flag == Move.RookPromotion) {
+            pieces.Add(new PieceUI(new Piece(board.IsWhiteTurn ? PieceType.White : PieceType.Black, PieceType.Rook), new Coord(move.Target)));
+            pieces.RemoveAt(index);
+        }
 
         // Castle
         // Move the rook to the other side of the king

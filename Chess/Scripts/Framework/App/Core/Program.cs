@@ -1,7 +1,6 @@
 ﻿namespace Chess.App;
 
 using Raylib_cs;
-using Chess.Testing;
 using Chess.API;
 
 class Program {
@@ -11,7 +10,7 @@ class Program {
         Raylib.SetTargetFPS(60);
 
         // Default game: Human vs Bot | Initial position | Board visible from white's perspective
-        Game game = new Game(new BotPlayer(true), new BotPlayer(false), "", true);
+        Game game = new Game(new BotPlayer(true), new HumanPlayer(false), "", true);
 
         while (!Raylib.WindowShouldClose()) {
             Raylib.BeginDrawing();

@@ -4,9 +4,8 @@ using Chess.API;
 using Chess.ChessEngine;
 
 class Bot {
-    static Random rnd = new Random();
-    const int positiveInfinity = 1000000;
-    const int negativeInfinity = -1000000;
+    const int positiveInfinity = 1000000000;
+    const int negativeInfinity = -1000000000;
     static Move bestMove = Move.NullMove;
 
     static Dictionary<int, int> PieceValue = new Dictionary<int, int> {

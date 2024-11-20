@@ -10,6 +10,8 @@ class Board {
     public int HalfMoveClock = 0;
     public int MoveCount = 1;
 
+    public List<Move> MovesMade = new List<Move>();
+
     // Bitboard for pieces
     public Dictionary<int, Bitboard> Type = new Dictionary<int, Bitboard> {
         { PieceType.Pawn, new Bitboard(0) },
@@ -37,10 +39,12 @@ class Board {
         IsWhiteTurn = !IsWhiteTurn;
     }
     
-    public void MakeMove(Move move) {
+    public void MakeMove(Move move, bool record = false) {
         MoveUtility.MakeMove(this, move);
         SwitchTurn();
         if (IsWhiteTurn) MoveCount++;
+
+        if (record) MovesMade.Add(move);
     }
 
     public void UnmakeMove(Move move) {

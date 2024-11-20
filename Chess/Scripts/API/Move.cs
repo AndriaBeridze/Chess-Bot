@@ -34,5 +34,17 @@ class Move {
     public Coord SourceCoord => new Coord(Source);
     public Coord TargetCoord => new Coord(Target);
 
-    public static Move NullMove => new Move(0, 0, 0);    
+    public static Move NullMove => new Move(0, 0, 0);  
+
+    public bool IsNull => value == 0;
+
+    public override int GetHashCode() => value;
+    public override bool Equals(object ? obj) {
+        if (obj == null || GetType() != obj.GetType()) {
+            return false;
+        }
+
+        Move move = (Move) obj;
+        return value == move.value;
+    }  
 }

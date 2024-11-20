@@ -54,4 +54,12 @@ class Arbiter {
 
         return true;
     }
+
+    public static string Status(Board board) {
+        if (IsCheckmate(board)) return "Checkmate";
+        if (IsStalemate(board)) return "Stalemate";
+        if (IsDraw(board)) return "Draw";
+
+        return "";
+    }
 }
