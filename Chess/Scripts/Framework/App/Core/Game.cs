@@ -3,22 +3,24 @@ namespace Chess.App;
 using Raylib_cs;
 using Chess.API;
 using Chess.ChessEngine;
-using System.Runtime.CompilerServices;
 using Chess.Bot;
 
 class Game {
     private Player whitePlayer;
     private Player blackPlayer;
 
-    private BoardUI boardUI;
+    private static Board board = new Board("");
+
+    private static BoardUI boardUI = new BoardUI();
     private CoordUI coordUI;
-    private PositionUI positionUI;
+    private static PositionUI positionUI = new PositionUI(board);
     private PlayerUI playerUI;
     private GameStatus gameStatus;
 
-    private Board board;
- 
-    private OpeningBook openingBook;
+    private static OpeningBook openingBook = new OpeningBook();
+
+    private static Player currentPlayer = new HumanPlayer(true);
+    private static bool canBeChecked = true;
 
     public Game(Player whitePlayer, Player blackPlayer, string fen, bool isWhitePerspective) {
         this.whitePlayer = whitePlayer;
@@ -37,9 +39,13 @@ class Game {
         gameStatus = new GameStatus("");
 
         openingBook = new OpeningBook();
+
+        currentPlayer = board.IsWhiteTurn ? whitePlayer : blackPlayer;
     }
 
     public void Update() {
+        if (!canBeChecked) goto Skip;
+
         string status = Arbiter.Status(board);
         if (status != "") {
             Color color = Color.White;
@@ -53,18 +59,59 @@ class Game {
             return;
         }
 
-        // Displaying bot moves
-        Player currentPlayer = board.IsWhiteTurn ? whitePlayer : blackPlayer;
-        if (currentPlayer.IsBot) {
-            Move move = openingBook.GetMove(board.MovesMade);
-            if (move.IsNull) move = currentPlayer.Search(board);
+        Skip:
 
-            positionUI.AnimateMove(move, board);
-            board.MakeMove(move, record : true);
-            boardUI.SetLastMove(move);
+        // Displaying bot moves
+        currentPlayer = board.IsWhiteTurn ? whitePlayer : blackPlayer;
+        if (currentPlayer.IsBot && canBeChecked) {
+            canBeChecked = false;
+
+            Task.Run(() => {
+                GetBotMove();
+            });
         }
 
-        positionUI.Update(board, boardUI);
+        positionUI.Update(board, boardUI, highlightMoves : currentPlayer.IsHuman);
+
+        if (board.MovesMade.Count > 0 && board.MovesMade[board.MovesMade.Count - 1].IsPromotion) {
+            Move move = board.MovesMade[board.MovesMade.Count - 1];
+            int index = positionUI.Pieces.FindIndex(piece => piece.Coord == new Coord(move.Target));
+            int color = board.IsWhiteTurn ? PieceType.Black : PieceType.White;
+            if (index == -1) return;
+            switch (move.Flag) {
+                case Move.QueenPromotion:
+                    positionUI.Pieces[index] = new PieceUI(new Piece(color, PieceType.Queen), new Coord(move.Target));
+                    break;
+                case Move.RookPromotion:
+                    positionUI.Pieces[index] = new PieceUI(new Piece(color, PieceType.Rook), new Coord(move.Target));
+                    break;
+                case Move.BishopPromotion:
+                    positionUI.Pieces[index] = new PieceUI(new Piece(color, PieceType.Bishop), new Coord(move.Target));
+                    break;
+                case Move.KnightPromotion:
+                    positionUI.Pieces[index] = new PieceUI(new Piece(color, PieceType.Knight), new Coord(move.Target));
+                    break;
+            }   
+        }
+    }
+
+    private static void GetBotMove() {
+        Move move = openingBook.GetMove(board.MovesMade);
+        if (move.IsNull) move = currentPlayer.Search(board);
+
+        Task.Run(() => {
+            AnimateMove(move);
+        });
+    }
+
+    private static void AnimateMove(Move move) {
+        positionUI.AnimateMove(move, board);
+        board.MakeMove(move, record : true);
+        boardUI.SetLastMove(move);
+
+        Thread.Sleep(100);
+
+        canBeChecked = true;
     }
 
     public void Render() {

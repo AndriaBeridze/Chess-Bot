@@ -37,6 +37,7 @@ class Move {
     public static Move NullMove => new Move(0, 0, 0);  
 
     public bool IsNull => value == 0;
+    public bool IsPromotion => Flag == QueenPromotion || Flag == RookPromotion || Flag == BishopPromotion || Flag == KnightPromotion;
 
     public override int GetHashCode() => value;
     public override bool Equals(object ? obj) {

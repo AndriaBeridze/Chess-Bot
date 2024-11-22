@@ -36,9 +36,14 @@ class Bot {
         }
 
         foreach (Move move in moves) {
+            int eval = 0;
+            if (board.MovesMade.FindAll(m => m.Equals(move)).Count == 2) goto Skip;
+
             board.MakeMove(move);
-            int eval = -Search(board, depth - 1, false, -beta, -alpha);
+            eval = -Search(board, depth - 1, false, -beta, -alpha);
             board.UnmakeMove(move);
+
+            Skip:
 
             if (eval >= beta) return beta;
 

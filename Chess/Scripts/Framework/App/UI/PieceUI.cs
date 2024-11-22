@@ -26,12 +26,6 @@ class PieceUI {
         Y = UIHelper.GetScreenY(Coord);
     }
 
-    public void UpdateUrl(String url) {
-        imgURL = url;
-        texture = Raylib.LoadTexture(imgURL);
-        Raylib.SetTextureFilter(texture, TextureFilter.Bilinear);
-    }
-
     public void Render() {
         Raylib.DrawTexturePro(
             texture,

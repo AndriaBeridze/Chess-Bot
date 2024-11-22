@@ -4,7 +4,7 @@ using Chess.API;
 
 class BoardHelper {
     public const string rowNames = "abcdefgh";
-    public const string columNames = "12345678";
+    public const string columnNames = "12345678";
 
     public static int ColumnIndex(int squareIndex) {
         return squareIndex & 0b00000111;
@@ -48,9 +48,9 @@ class BoardHelper {
 
     public static int SquareIndexFromName(string name) {
         char rowName = name[0];
-        char columName = name[1];
+        char columnName = name[1];
         int rowIndex = rowNames.IndexOf(rowName);
-        int columnIndex = columNames.IndexOf(columName);
+        int columnIndex = columnNames.IndexOf(columnName);
         return IndexFromCoord(rowIndex, columnIndex);
     }
 

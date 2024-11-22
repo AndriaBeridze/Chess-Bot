@@ -29,4 +29,5 @@ class Theme {
     public static Color StalemateTextColor = new Color(73, 151, 208, 255);
     public static Color DrawTextColor = new Color(249, 228, 188, 255);
 
+    public static int TimeLimit = 600000; // 10 minutes
 }
