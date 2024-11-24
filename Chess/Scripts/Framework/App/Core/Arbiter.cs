@@ -35,10 +35,12 @@ class Arbiter {
             int k = 0;
             while (!bishops.IsEmpty) {
                 int index = bishops.FirstBit;
-                k |= (index / 8 + index % 8) % 2;
+                k |= 1 << ((index / 8 + index % 8) % 2);
+
+                bishops.ClearBit(index);
             }
 
-            if ((k ^ 0b11) == 0) return false;
+            if (k == 0b11) return false;
         }
 
         if ((board.Type[Piece.Bishop] & board.Color[false]).Count() >= 2) {
@@ -46,10 +48,12 @@ class Arbiter {
             int k = 0;
             while (!bishops.IsEmpty) {
                 int index = bishops.FirstBit;
-                k |= (index / 8 + index % 8) % 2;
+                k |= 1 << ((index / 8 + index % 8) % 2);
+
+                bishops.ClearBit(index);
             }
 
-            if ((k ^ 0b11) == 0) return false;
+            if (k == 0b11) return false;
         }
 
         // If there is a bishop and a knight, checkmate still can be delivered

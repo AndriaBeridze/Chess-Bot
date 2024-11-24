@@ -11,7 +11,7 @@ class Program {
         Raylib.SetTargetFPS(60);
 
         // Default game: Human vs Bot | Initial position | Board visible from white's view
-        Game game = new Game(new HumanPlayer(true), new BotPlayer(false), "", true);
+        Game game = new Game(new BotPlayer(true), new BotPlayer(false), "8/3k4/8/b7/8/8/6K1/8 w - - 0 1", true);
 
         while (!Raylib.WindowShouldClose()) {
             Raylib.BeginDrawing();

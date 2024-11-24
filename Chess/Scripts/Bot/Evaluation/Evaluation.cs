@@ -17,23 +17,29 @@ class Evaluation {
     public const int Rook = 500;
     public const int Queen = 900;
 
-    // The evaluation consists of two parts:
+    private const float endgameMaterialStart = 2 * Rook + Bishop + Knight;
+
+    // The evaluation consists of three parts:
     // 1. Material worth: The value of the pieces on the board - controls the pieces that are under attack
     // 2. Bonus: The value of the position of the pieces on the board - helps with the strategic placement of the pieces
+    // 3. Move up evaluation: This helps with the endgame evaluation - controls the king's movement
+    //      - The losing king should be forced to the edge of the board
+    //      - The winning king should be as close to the losing king as possible
     public static int Evaluate(Board board) {
         int eval = 0;
 
-        eval += CalculateMaterialWorth(board, true) - CalculateMaterialWorth(board, false);
+        eval += CalculateMaterial(board, true) - CalculateMaterial(board, false);
         eval += CalculateBonus(board, true) - CalculateBonus(board, false);
+        eval += MoveUpEvaluation(board, true) - MoveUpEvaluation(board, false);
 
         // Since we are evaluating the board from the white's perspective, we need to negate the value if it's black
         return eval * (board.IsWhiteTurn ? 1 : -1); 
     }   
 
-    private static int CalculateMaterialWorth(Board board, bool isWhite) {
+    private static int CalculateMaterial(Board board, bool isWhite, bool pawns = true) {
         int eval = 0;
 
-        eval += (board.Type[Piece.Pawn] & board.Color[isWhite]).Count() * Pawn;
+        if (pawns) eval += (board.Type[Piece.Pawn] & board.Color[isWhite]).Count() * Pawn;
         eval += (board.Type[Piece.Knight] & board.Color[isWhite]).Count() * Knight;
         eval += (board.Type[Piece.Bishop] & board.Color[isWhite]).Count() * Bishop;
         eval += (board.Type[Piece.Rook] & board.Color[isWhite]).Count() * Rook;
@@ -53,5 +59,37 @@ class Evaluation {
         }
 
         return bonus;
+    }
+
+    private static int MoveUpEvaluation(Board board, bool isWhite) {
+        int eval = 0;
+        float endgameWeight = CalculateEndgameWeight(board, isWhite);
+
+        int friendlyColorMaterial = CalculateMaterial(board, isWhite);
+        int enemyColorMaterial = CalculateMaterial(board, !isWhite);
+
+        if (friendlyColorMaterial > enemyColorMaterial + Pawn * 2 && endgameWeight > 0) {
+            int friendlyKingIndex = (board.Type[Piece.King] & board.Color[isWhite]).FirstBit;
+            int enemyKingIndex = (board.Type[Piece.King] & board.Color[!isWhite]).FirstBit;
+
+            int friendlyKingColumn = BoardHelper.ColumnIndex(friendlyKingIndex);
+            int friendlyKingRow = BoardHelper.RowIndex(friendlyKingIndex);
+            int enemyKingColumn = BoardHelper.ColumnIndex(enemyKingIndex);
+            int enemyKingRow = BoardHelper.RowIndex(enemyKingIndex);
+
+            eval += Math.Max(3 - enemyKingColumn, enemyKingColumn - 4) * 50;
+            eval += Math.Max(3 - enemyKingRow, enemyKingRow - 4) * 50;
+
+            eval += (14 - (Math.Abs(friendlyKingColumn - enemyKingColumn) + Math.Abs(friendlyKingRow - enemyKingRow))) * 100;
+
+            return (int) (eval * endgameWeight);
+        }
+
+        return 0;
+    }
+
+    private static float CalculateEndgameWeight(Board board, bool isWhite) {
+        float multiplier = 1 / endgameMaterialStart;
+        return 1 - Math.Min(1, multiplier * CalculateMaterial(board, isWhite, pawns : false));
     }
 }
