@@ -32,4 +32,8 @@ class Theme {
 
     // Timer
     public static int TimeLimit = 600000;
+
+    // Data
+    public static Color DepthDataColor = new Color(200, 63, 73, 255);
+    public static Color EvalDataColor = new Color(73, 151, 208, 255);
 }

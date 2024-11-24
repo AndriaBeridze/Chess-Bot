@@ -4,7 +4,6 @@ using Raylib_cs;
 using Chess.API;
 using Chess.ChessEngine;
 using Chess.Bot;
-using System.Dynamic;
 
 class Game {
     private Player whitePlayer;
@@ -17,11 +16,15 @@ class Game {
     private PositionUI positionUI;
     private PlayerUI playerUI;
     private GameStatus gameStatus;
+    private DataUI dataUI;
 
     private OpeningBook openingBook;
 
     private Player currentPlayer;
     private bool statusCheck = true;
+
+    private int depth = 0;
+    private float eval = 0;
 
     public Game(Player whitePlayer, Player blackPlayer, string fen, bool fromWhitesView) {
         this.whitePlayer = whitePlayer;
@@ -37,6 +40,7 @@ class Game {
         positionUI = new PositionUI(board);
         playerUI = new PlayerUI(whitePlayer.PlayerType, blackPlayer.PlayerType);
         gameStatus = new GameStatus("");
+        dataUI = new DataUI(0, 0);
 
         openingBook = new OpeningBook();
 
@@ -51,9 +55,18 @@ class Game {
         if (status != "") {
             Color color = Color.White;
 
-            if (status == "Checkmate") color = Theme.CheckmateTextColor;
-            if (status == "Stalemate") color = Theme.StalemateTextColor;
-            if (status == "Draw") color = Theme.DrawTextColor;
+            if (status == "Checkmate") {
+                color = Theme.CheckmateTextColor;
+                dataUI.Update(depth, (1000000 + depth) / 100.0f);
+            }
+            if (status == "Stalemate") {
+                color = Theme.StalemateTextColor;
+                dataUI.Update(depth, 0);
+            }
+            if (status == "Draw") {
+                color = Theme.DrawTextColor;
+                dataUI.Update(depth, 0);
+            }
 
             gameStatus = new GameStatus(status, color);
 
@@ -76,7 +89,9 @@ class Game {
 
     private void GetBotMove() {
         Move move = openingBook.GetMove(board.MovesMade); // Check if there is a matching opening move
-        if (move.IsNull) move = currentPlayer.Search(board); // If not, search for a move
+        if (move.IsNull) move = currentPlayer.Search(board, ref depth, ref eval); // If not, search for a move
+
+        dataUI.Update(depth, eval);
 
         // Piece animation is also done in a separate thread
         // There is no need to do this, since animation is very short and doesn't affect the UI interface
@@ -102,5 +117,6 @@ class Game {
         positionUI.Render();
         playerUI.Render();
         gameStatus.Render();
+        dataUI.Render();
     }
 }

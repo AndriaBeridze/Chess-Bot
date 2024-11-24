@@ -77,9 +77,13 @@ class Evaluation {
             int enemyKingColumn = BoardHelper.ColumnIndex(enemyKingIndex);
             int enemyKingRow = BoardHelper.RowIndex(enemyKingIndex);
 
+            // Add the distance from the enemy king to the center of the board
+            // The further, the better
             eval += Math.Max(3 - enemyKingColumn, enemyKingColumn - 4) * 50;
             eval += Math.Max(3 - enemyKingRow, enemyKingRow - 4) * 50;
 
+            // Add the distance from the friendly king to the enemy king
+            // The closer, the better
             eval += (14 - (Math.Abs(friendlyKingColumn - enemyKingColumn) + Math.Abs(friendlyKingRow - enemyKingRow))) * 100;
 
             return (int) (eval * endgameWeight);
