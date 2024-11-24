@@ -1,56 +1,63 @@
 namespace Chess.App;
 
-using System.IO.Compression;
 using Chess.API;
 using Chess.ChessEngine;
 
 class Arbiter {
     public static bool IsCheckmate(Board board) {
-        return BitboardHelper.IsInCheck(board, board.IsWhiteTurn) && MoveGenerator.GenerateMoves(board).Count == 0;
+        // Two requirements for checkmate:
+        // 1. The king is in check
+        // 2. There are no legal moves to get out of check
+        if (!MoveHelper.IsInCheck(board, board.IsWhiteTurn)) return false;
+        if (MoveGenerator.GenerateMoves(board).Count > 0) return false;
+        return true;
     }
 
     public static bool IsStalemate(Board board) {
-        return !BitboardHelper.IsInCheck(board, board.IsWhiteTurn) && MoveGenerator.GenerateMoves(board).Count == 0;
+        // Two requirements for stalemate:
+        // 1. The king is not in check
+        // 2. There are no legal moves
+        if (MoveHelper.IsInCheck(board, board.IsWhiteTurn)) return false;
+        if (MoveGenerator.GenerateMoves(board).Count > 0) return false;
+        return true;
     }
 
     public static bool IsDraw(Board board) {
         if (board.HalfMoveClock >= 100) return true;
 
-        if (!board.Type[PieceType.Rook].IsEmpty) return false;
-        if (!board.Type[PieceType.Queen].IsEmpty) return false;
-        if (!board.Type[PieceType.Pawn].IsEmpty) return false;
+        if (!board.Type[Piece.Rook].IsEmpty) return false;
+        if (!board.Type[Piece.Queen].IsEmpty) return false;
+        if (!board.Type[Piece.Pawn].IsEmpty) return false;
 
         // If there is two bishops on the different color squares, checkmate still can be delivered
-        if ((board.Type[PieceType.Bishop] & board.Color[true]).Count() >= 2 || 
-            (board.Type[PieceType.Bishop] & board.Color[false]).Count() >= 2) {
+        if ((board.Type[Piece.Bishop] & board.Color[true]).Count() >= 2) {
+            Bitboard bishops = board.Type[Piece.Bishop] & board.Color[true];
             int k = 0;
-            Bitboard temp = board.Type[PieceType.Bishop] & board.Color[true];
-            while(!temp.IsEmpty) {
-                int index = temp.FirstBit;
-                k |= 1 << index;
-
-                temp.ClearBit(index);
+            while (!bishops.IsEmpty) {
+                int index = bishops.FirstBit;
+                k |= (index / 8 + index % 8) % 2;
             }
 
-            if (k == 3) return false;
+            if ((k ^ 0b11) == 0) return false;
+        }
 
-            k = 0;
-            temp = board.Type[PieceType.Bishop] & board.Color[true];
-            while(!temp.IsEmpty) {
-                int index = temp.FirstBit;
-                k |= 1 << index;
-
-                temp.ClearBit(index);
+        if ((board.Type[Piece.Bishop] & board.Color[false]).Count() >= 2) {
+            Bitboard bishops = board.Type[Piece.Bishop] & board.Color[false];
+            int k = 0;
+            while (!bishops.IsEmpty) {
+                int index = bishops.FirstBit;
+                k |= (index / 8 + index % 8) % 2;
             }
 
-            if (k == 3) return false;
+            if ((k ^ 0b11) == 0) return false;
         }
 
         // If there is a bishop and a knight, checkmate still can be delivered
-        if  (((board.Type[PieceType.Bishop] & board.Color[true]).Count() >= 1 && 
-                (board.Type[PieceType.Knight] & board.Color[true]).Count() >= 1) ||
-            ((board.Type[PieceType.Bishop] & board.Color[false]).Count() >= 1 && 
-                (board.Type[PieceType.Knight] & board.Color[false]).Count() >= 1)) return false;
+        if  (!(board.Type[Piece.Bishop] & board.Color[true]).IsEmpty && 
+             !(board.Type[Piece.Knight] & board.Color[true]).IsEmpty) return false;
+        
+        if  (!(board.Type[Piece.Bishop] & board.Color[false]).IsEmpty &&
+             !(board.Type[Piece.Knight] & board.Color[false]).IsEmpty) return false;
 
         return true;
     }

@@ -18,13 +18,13 @@ class FenUtility {
     // 6. Fullmove number: The number of the full move. It starts at 1, and is incremented after black
     public static string startingFen = "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr w KQkq - 0 1"; // Default starting position
 
-    private static Dictionary<char, int> pieceTypeByChar = new() {
-        { 'p', PieceType.Pawn },
-        { 'n', PieceType.Knight },
-        { 'b', PieceType.Bishop },
-        { 'r', PieceType.Rook },
-        { 'q', PieceType.Queen },
-        { 'k', PieceType.King }
+    private static Dictionary<char, int> PieceByChar = new() {
+        { 'p', Piece.Pawn },
+        { 'n', Piece.Knight },
+        { 'b', Piece.Bishop },
+        { 'r', Piece.Rook },
+        { 'q', Piece.Queen },
+        { 'k', Piece.King }
     };
 
     public static void LoadFen(string fen, Board board) {
@@ -39,21 +39,20 @@ class FenUtility {
             if (char.IsDigit(c)) {
                 int emptySquares = c - '0';
                 for (int i = 0; i < emptySquares; i++) {
-                    board.Square[squareIndex] = new Piece(PieceType.None);
+                    board.Square[squareIndex] = new Piece(Piece.None);
                     squareIndex++;
                 }
             } else {
-                int type = pieceTypeByChar[char.ToLower(c)];
+                int type = PieceByChar[char.ToLower(c)];
                 bool isWhite = char.IsUpper(c);
 
                 board.Type[type].SetBit(squareIndex);
                 board.Color[isWhite].SetBit(squareIndex);
                 
-                Piece piece = new Piece(type, isWhite ? PieceType.White : PieceType.Black);
+                Piece piece = new Piece(type, isWhite ? Piece.White : Piece.Black);
 
                 board.Square[squareIndex] = piece;
                 squareIndex++;
-
             }
         }
         

@@ -4,62 +4,81 @@ using Chess.API;
 using Chess.ChessEngine;
 
 class OpeningBook {
-    public List<List<Move>> book = new List<List<Move>>();
+    // If we let bot play without opening books, it will respond with random moves again and again
+    // Opening book is a collection of grandmaster games' opening moves
+    // Recorded moves are used to determine the matching positions and the next move to make
+    // If there is a multiple matching position, a random move is selected
+    private List<List<Move>> book = new List<List<Move>>();
 
     public OpeningBook() {
-        string[] lines = File.ReadAllLines("Chess/Resources/Openings.txt");
-        foreach (string line in lines) {
-            List<Move> current = new List<Move>();
-            string[] moves = line.Split(' ');
+        string[] openings = File.ReadAllLines("Chess/Resources/Openings.txt"); // Openings.txt is a file that contains opening moves in the coordinate notation
+
+        foreach (string opening in openings) {
+            List<Move> currentOpeningList = new List<Move>();
+            string[] moves = opening.Split(' ');
 
             for (int i = 0; i < moves.Length; i++) {
                 string move = moves[i];
-                if (i == moves.Length - 1) continue;
+                if (i == moves.Length - 1) continue; // When reading the line, '\n' is also read
 
-                int source = BoardHelper.SquareIndexFromName(move.Substring(0, 2));
-                int target = BoardHelper.SquareIndexFromName(move.Substring(2, 2));
+                int source = BoardHelper.SquareIndexFromName(move.Substring(0, 2)); // First two characters are the source square
+                int target = BoardHelper.SquareIndexFromName(move.Substring(2, 2)); // Next two characters are the target square
+                int flag = 0;
+
+                // Whenever I was converting the games from pgn to coordinate notation, I added letter at the end of the move to indicate the various flags
+                // q - Queen Promotion
+                // r - Rook Promotion
+                // b - Bishop Promotion
+                // n - Knight Promotion
+                // c - Castling
                 if (move.Length == 5) {
-                    if (move[4] == 'c') {
-                        current.Add(new Move(source, target, Move.Castling));
-                    } else if (move[4] == 'q') {
-                        current.Add(new Move(source, target, Move.QueenPromotion));
-                    } else if (move[4] == 'r') {
-                        current.Add(new Move(source, target, Move.RookPromotion));
-                    } else if (move[4] == 'b') {
-                        current.Add(new Move(source, target, Move.BishopPromotion));
-                    } else if (move[4] == 'n') {
-                        current.Add(new Move(source, target, Move.KnightPromotion));
+                    switch (move[4]) {
+                        case 'q':
+                            flag = Move.QueenPromotion;
+                            break;
+                        case 'r':
+                            flag = Move.RookPromotion;
+                            break;
+                        case 'b':
+                            flag = Move.BishopPromotion;
+                            break;
+                        case 'n':
+                            flag = Move.KnightPromotion;
+                            break;
+                        case 'c':
+                            flag = Move.Castling;
+                            break;
                     }
-                } else {
-                    current.Add(new Move(source, target));
                 }
+
+                currentOpeningList.Add(new Move(source, target, (ushort) flag));
             }
 
-            book.Add(current);
+            book.Add(currentOpeningList);
         }
     }
 
+    // Gets random move from the possible opening positions
     public Move GetMove(List<Move> movesMade) {
         Random rnd = new Random();
-        List<Move> possibleGames = new List<Move>();
+        List<Move> possibleMoves = new List<Move>();
 
         foreach (List<Move> moves in book) {
-            if (moves.Count <= movesMade.Count) continue;
+            if (moves.Count <= movesMade.Count) continue; // If there is less moves in the opening than the moves made, skip
 
             bool match = true;
             for (int i = 0; i < movesMade.Count; i++) {
                 if (!moves[i].Equals(movesMade[i])) { 
+                    // Position was not matched
                     match = false;
                     break;
                 }
             }
 
-            if (match) {
-                possibleGames.Add(moves[movesMade.Count]);
-            }
+            if (match) possibleMoves.Add(moves[movesMade.Count]);
         }
 
-        if (possibleGames.Count > 0) return possibleGames[rnd.Next(possibleGames.Count)];
-        return Move.NullMove;
+        if (possibleMoves.Count == 0) return Move.NullMove;
+        return possibleMoves[rnd.Next(possibleMoves.Count)];
     }
 }

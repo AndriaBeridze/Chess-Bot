@@ -1,8 +1,8 @@
 namespace Chess.App;
 
 using Chess.API;
-using Chess.ChessEngine;
 using Chess.Bot;
+using Chess.ChessEngine;
 
 class BotPlayer : Player {
     public BotPlayer(bool isWhite) : base(isWhite, false) {}

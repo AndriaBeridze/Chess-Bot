@@ -1,12 +1,12 @@
 namespace Chess.App;
 
-using System.Numerics;
-using Raylib_cs;
 using Chess.API;
+using Raylib_cs;
+using System.Numerics;
 
 class CoordUI() {
-    private static string rowNames = Theme.IsWhitePerspective ? "87654321" : "12345678";
-    private static string colNames = Theme.IsWhitePerspective ? "ABCDEFGH" : "HGFEDCBA";
+    private static string rowNames = Theme.FromWhitesView ? "87654321" : "12345678";
+    private static string colNames = Theme.FromWhitesView ? "ABCDEFGH" : "HGFEDCBA";
 
     private static int offset = 5;
     private static int fontSize = 35; // Change this if you want to adjust the font size
@@ -16,7 +16,7 @@ class CoordUI() {
     public void Render() {
         for (int i = 0; i < 8; i++) {
             // Find the i-th square in the bottommost row from the rendering perspective and get its screen coordinates
-            Coord coord = new Coord(Theme.IsWhitePerspective ? -1 : 8, Theme.IsWhitePerspective ? i + 1 : 6 - i);
+            Coord coord = new Coord(Theme.FromWhitesView ? -1 : 8, Theme.FromWhitesView ? i + 1 : 6 - i);
             int x = UIHelper.GetScreenX(coord);
             int y = UIHelper.GetScreenY(coord);
 
@@ -28,7 +28,7 @@ class CoordUI() {
         }
         for (int i = 0; i < 8; i++) {
             // Find the i-th square in the rightmost column from the rendering perspective and get its screen coordinates
-            Coord coord = new Coord(Theme.IsWhitePerspective ? 7 - i : i, Theme.IsWhitePerspective ? 0 : 7);
+            Coord coord = new Coord(Theme.FromWhitesView ? 7 - i : i, Theme.FromWhitesView ? 0 : 7);
             int x = UIHelper.GetScreenX(coord);
             int y = UIHelper.GetScreenY(coord);
 

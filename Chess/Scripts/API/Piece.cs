@@ -1,37 +1,59 @@
 namespace Chess.API;
 
 class Piece {
-    private PieceType piece;
+    // Piece is hashed into a 5 5 bit integer
+    // Structure is following: CCTTT
+    // C - color, T - type
+    private int value;
 
-    public int Type => piece.Type;
-    public int Color => piece.FriendlyColor;
+    public const int None = 0;
+    public const int Pawn = 1;
+    public const int Knight = 2;
+    public const int Bishop = 3;
+    public const int Rook = 4;
+    public const int Queen = 5;
+    public const int King = 6;
 
-    public bool IsWhite => Color == PieceType.White;
-    public bool IsBlack => Color == PieceType.Black;
+    public const int White = 8;
+    public const int Black = 16;
 
-    public bool IsNone => Type == PieceType.None;
-    public bool IsPawn => Type == PieceType.Pawn;
-    public bool IsRook => Type == PieceType.Rook;
-    public bool IsKnight => Type == PieceType.Knight;
-    public bool IsBishop => Type == PieceType.Bishop;
-    public bool IsQueen => Type == PieceType.Queen;
-    public bool IsKing => Type == PieceType.King;
+    public int Color => value & 0b00011000;
+    public int Type => value & 0b00000111;
+    public int FriendlyColor => Color;
+    public int EnemyColor => FriendlyColor ^ 0b00011000;
+
+    public bool IsWhite => !IsNone && Color == White;
+    public bool IsBlack => !IsNone && Color == Black;
+
+    public bool IsNone => Type == None;
+    public bool IsPawn => Type == Pawn;
+    public bool IsKnight => Type == Knight;
+    public bool IsBishop => Type == Bishop;
+    public bool IsRook => Type == Rook;
+    public bool IsQueen => Type == Queen;
+    public bool IsKing => Type == King;
     
     // Sliding piece movements can be combined and calculated in one go
-    public bool IsSlidingPiece => IsRook || IsBishop || IsQueen; 
+    public bool IsSlidingPiece => IsRook || IsBishop || IsQueen;
+
+    public override string ToString()
+    {
+        if (IsNone) return ".";
+        string name = Type switch {
+            Pawn => "P",
+            Knight => "N",
+            Bishop => "B",
+            Rook => "R",
+            Queen => "Q",
+            King => "K",
+            _ => "?"
+        };
+        if (IsBlack) name = name.ToLower();
+        
+        return name;
+    }
 
     public Piece(int color, int type = 0) {
-        piece = new PieceType(color, type);
+        value = color | type;
     }
-
-    public override string ToString() {
-        if (IsNone) return "None";
-        return $"{(IsWhite ? "White" : "Black")} {Type}";
-    }
-
-    public static bool operator ==(Piece a, Piece b) => a.IsWhite == b.IsWhite && a.Type == b.Type;
-    public static bool operator !=(Piece a, Piece b) => !(a == b);
-    public bool Equals(Piece other) => this == other;
-    public override bool Equals(object? obj) => obj is Piece other && Equals(other);
-    public override int GetHashCode() => piece.GetHashCode();
 }

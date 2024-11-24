@@ -34,11 +34,23 @@ class Move {
     public Coord SourceCoord => new Coord(Source);
     public Coord TargetCoord => new Coord(Target);
 
-    public static Move NullMove => new Move(0, 0, 0);  
-
     public bool IsNull => value == 0;
     public bool IsPromotion => Flag == QueenPromotion || Flag == RookPromotion || Flag == BishopPromotion || Flag == KnightPromotion;
+    public bool IsEnPassant => Flag == EnPassant;
+    public bool IsCastling => Flag == Castling;
 
+    public int PromotingTo => Flag switch {
+        QueenPromotion => Piece.Queen,
+        RookPromotion => Piece.Rook,
+        BishopPromotion => Piece.Bishop,
+        KnightPromotion => Piece.Knight,
+        _ => Piece.None
+    };
+
+    public static Move NullMove => new Move(0, 0, 0);  
+
+    public static bool operator ==(Move a, Move b) => a.value == b.value;
+    public static bool operator !=(Move a, Move b) => a.value != b.value;
     public override int GetHashCode() => value;
     public override bool Equals(object ? obj) {
         if (obj == null || GetType() != obj.GetType()) {

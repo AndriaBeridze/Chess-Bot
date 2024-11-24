@@ -1,7 +1,7 @@
 namespace Chess.App;
 
-using Raylib_cs;
 using Chess.API;
+using Raylib_cs;
 using System.Numerics;
 
 class PlayerUI {
@@ -23,14 +23,11 @@ class PlayerUI {
         int spaceBetween = Theme.ScreenHeight / 2 - (Theme.SquareSideLength * 4 + Theme.BorderSize);
 
         int x, y;
-        if (Theme.IsWhitePerspective) {
-            x = UIHelper.GetScreenX(Theme.IsWhitePerspective ? 0 : 7);
-            y = spaceBetween + Theme.SquareSideLength * 8 + Theme.BorderSize * 2 + offset;
-        } else {
-            x = UIHelper.GetScreenX(Theme.IsWhitePerspective ? 0 : 7);
-            y = spaceBetween - offset + 5 - fontSize;
-        }
 
+        x = UIHelper.GetScreenX(Theme.FromWhitesView ? 0 : 7);
+        if (Theme.FromWhitesView) y = spaceBetween + Theme.SquareSideLength * 8 + Theme.BorderSize * 2 + offset;
+        else y = spaceBetween - offset + 5 - fontSize;
+        
         Raylib.DrawTextEx(font, $"White: { whitePlayer }", new Vector2(x, y), fontSize, 1, fontColor);
     }
 
@@ -38,13 +35,10 @@ class PlayerUI {
         int spaceBetween = Theme.ScreenHeight / 2 - (Theme.SquareSideLength * 4 + Theme.BorderSize);
 
         int x, y;
-        if (Theme.IsWhitePerspective) {
-            x = UIHelper.GetScreenX(Theme.IsWhitePerspective ? 0 : 7);
-            y = spaceBetween - offset + 5 - fontSize;
-        } else {
-            x = UIHelper.GetScreenX(Theme.IsWhitePerspective ? 0 : 7);
-            y = spaceBetween + Theme.SquareSideLength * 8 + Theme.BorderSize * 2 + offset;
-        }
+
+        x = UIHelper.GetScreenX(Theme.FromWhitesView ? 0 : 7);
+        if (Theme.FromWhitesView) y = spaceBetween - offset + 5 - fontSize;
+        else y = spaceBetween + Theme.SquareSideLength * 8 + Theme.BorderSize * 2 + offset;
 
         Raylib.DrawTextEx(font, $"Black: { blackPlayer }", new Vector2(x, y), fontSize, 1, fontColor);
     }

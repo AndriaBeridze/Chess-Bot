@@ -14,12 +14,12 @@ class Board {
 
     // Bitboard for pieces
     public Dictionary<int, Bitboard> Type = new Dictionary<int, Bitboard> {
-        { PieceType.Pawn, new Bitboard(0) },
-        { PieceType.Knight, new Bitboard(0) },
-        { PieceType.Bishop, new Bitboard(0) },
-        { PieceType.Rook, new Bitboard(0) },
-        { PieceType.Queen, new Bitboard(0) },
-        { PieceType.King, new Bitboard(0) },
+        { Piece.Pawn, new Bitboard(0) },
+        { Piece.Knight, new Bitboard(0) },
+        { Piece.Bishop, new Bitboard(0) },
+        { Piece.Rook, new Bitboard(0) },
+        { Piece.Queen, new Bitboard(0) },
+        { Piece.King, new Bitboard(0) },
     };
 
     // Bitboard for colors
@@ -35,9 +35,7 @@ class Board {
         FenUtility.LoadFen(fen, this);
     }
 
-    public void SwitchTurn() {
-        IsWhiteTurn = !IsWhiteTurn;
-    }
+    public void SwitchTurn() => IsWhiteTurn = !IsWhiteTurn;
     
     public void MakeMove(Move move, bool record = false) {
         MoveUtility.MakeMove(this, move);

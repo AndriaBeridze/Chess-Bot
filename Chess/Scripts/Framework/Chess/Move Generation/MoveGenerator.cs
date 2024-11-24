@@ -1,7 +1,5 @@
 namespace Chess.ChessEngine;
 
-using System.ComponentModel.DataAnnotations;
-using System.Data.Common;
 using Chess.API;
 
 class MoveGenerator {
@@ -35,13 +33,13 @@ class MoveGenerator {
     public static List<Move> GenerateCaptureMoves(Board board) {
         List<Move> moves = GenerateMoves(board);
 
-        return moves.Where(move => board.Square[move.Target].Type != PieceType.None).ToList();
+        return moves.Where(move => board.Square[move.Target].Type != Piece.None).ToList();
     }
 
     public static List<Move> PawnMoves(Board board) {
         List<Move> moves = new List<Move>();
 
-        Bitboard pawns = board.Type[PieceType.Pawn] & board.Color[board.IsWhiteTurn];
+        Bitboard pawns = board.Type[Piece.Pawn] & board.Color[board.IsWhiteTurn];
         Bitboard empty = board.Empty;
 
         Bitboard singlePush, doublePush, rightCapture, leftCapture;
@@ -88,7 +86,7 @@ class MoveGenerator {
         moves.AddRange(MoveHelper.ExtractPawnMoves(rightCapturePromotion, board.IsWhiteTurn ? 9 : -9, promotion: true, pins: pins));
         moves.AddRange(MoveHelper.ExtractPawnMoves(leftCapturePromotion, board.IsWhiteTurn ? 7 : -7, promotion: true, pins: pins));    
 
-        moves.AddRange(EnPassantMoves(board, board.IsWhiteTurn ? PieceType.White : PieceType.Black));
+        moves.AddRange(EnPassantMoves(board, board.IsWhiteTurn ? Piece.White : Piece.Black));
 
         return moves;
     }
@@ -96,12 +94,12 @@ class MoveGenerator {
     public static List<Move> KnightMoves(Board board) {
         List<Move> moves = new List<Move>();
 
-        Bitboard knights = board.Type[PieceType.Knight] & board.Color[board.IsWhiteTurn];
+        Bitboard knights = board.Type[Piece.Knight] & board.Color[board.IsWhiteTurn];
 
         while (!knights.IsEmpty) {
             int index = knights.FirstBit;
 
-            Bitboard moveSet = BitboardHelper.KnightMoves(index);
+            Bitboard moveSet = MoveHelper.KnightMoves(index);
             moveSet &= board.Empty | board.Color[!board.IsWhiteTurn]; // Remove all the moves that go to the squares occupied by the same color pieces to avoid same color capturing
             moveSet &= attackRays;
             if (pins.ContainsKey(index)) moveSet &= pins[index];
@@ -120,15 +118,15 @@ class MoveGenerator {
         List<Move> moves = new List<Move>();
 
         // Get all the rooks and queens for the horizontal and vertical moves
-        Bitboard straight = (board.Type[PieceType.Rook] | board.Type[PieceType.Queen]) & board.Color[board.IsWhiteTurn];
+        Bitboard straight = (board.Type[Piece.Rook] | board.Type[Piece.Queen]) & board.Color[board.IsWhiteTurn];
         // Get all the bishops and queens for the diagonal moves
-        Bitboard diagonal = (board.Type[PieceType.Bishop] | board.Type[PieceType.Queen]) & board.Color[board.IsWhiteTurn];
+        Bitboard diagonal = (board.Type[Piece.Bishop] | board.Type[Piece.Queen]) & board.Color[board.IsWhiteTurn];
 
         // Straight moves first
         while (!straight.IsEmpty) {
             int index = straight.FirstBit;
 
-            Bitboard result = BitboardHelper.StraightMoves(board, index);
+            Bitboard result = MoveHelper.StraightMoves(board, index);
             result &= board.Color[!board.IsWhiteTurn] | board.Empty; // Result above still considers friendly pieces as capturable, so we need to remove them
             result &= attackRays;
             if (pins.ContainsKey(index)) result &= pins[index];
@@ -142,7 +140,7 @@ class MoveGenerator {
         while (!diagonal.IsEmpty) {
             int index = diagonal.FirstBit;
 
-            Bitboard result = BitboardHelper.DiagonalMoves(board, index);
+            Bitboard result = MoveHelper.DiagonalMoves(board, index);
             result &= board.Color[!board.IsWhiteTurn] | board.Empty;
             result &= attackRays;
             if (pins.ContainsKey(index)) result &= pins[index];
@@ -158,21 +156,21 @@ class MoveGenerator {
     public static List<Move> KingMoves(Board board) {
         List<Move> moves = new List<Move>();
 
-        Bitboard kings = board.Type[PieceType.King] & board.Color[board.IsWhiteTurn];
+        Bitboard kings = board.Type[Piece.King] & board.Color[board.IsWhiteTurn];
 
         int index = kings.FirstBit;
-        Bitboard moveSet = BitboardHelper.KingMoves(index);
+        Bitboard moveSet = MoveHelper.KingMoves(index);
 
         // Remove all the moves that go to the squares occupied by the same color pieces to avoid same color capturing
         moveSet &= board.Empty | board.Color[!board.IsWhiteTurn];
 
         // Get all the unsafe squares for the king
-        board.Type[PieceType.King].ClearBit(index);
+        board.Type[Piece.King].ClearBit(index);
         board.Color[board.IsWhiteTurn].ClearBit(index);
         
-        moveSet &= ~BitboardHelper.GetUnsafeSquares(board, board.IsWhiteTurn);
+        moveSet &= ~MoveHelper.GetUnsafeSquares(board, board.IsWhiteTurn);
 
-        board.Type[PieceType.King].SetBit(index);
+        board.Type[Piece.King].SetBit(index);
         board.Color[board.IsWhiteTurn].SetBit(index);
 
         moves.AddRange(MoveHelper.ExtractMoves(moveSet, index));
@@ -185,7 +183,7 @@ class MoveGenerator {
 
     public static List<Move> CastlingMoves(Board board, int kingIndex) {
         List<Move> moves = new List<Move>();
-        Bitboard unsafeBitboard = BitboardHelper.GetUnsafeSquares(board, board.IsWhiteTurn);
+        Bitboard unsafeBitboard = MoveHelper.GetUnsafeSquares(board, board.IsWhiteTurn);
 
         // If king is in check, player can't castle
         if ((unsafeBitboard & BitboardHelper.GetBitAt(kingIndex)) != Bitboard.Null) return moves;
@@ -223,9 +221,9 @@ class MoveGenerator {
     public static List<Move> EnPassantMoves(Board board, int type) {
         List<Move> moves = new List<Move>();
 
-        Bitboard enPassantSquare = BitboardHelper.GetEnPassant(board);
+        Bitboard enPassantSquare = MoveHelper.GetEnPassant(board);
         Bitboard left, right;
-        Bitboard pawns = board.Type[PieceType.Pawn] & board.Color[board.IsWhiteTurn];
+        Bitboard pawns = board.Type[Piece.Pawn] & board.Color[board.IsWhiteTurn];
 
         if (board.IsWhiteTurn) {
             right = (pawns << 9) & ~Masks.Column[0] & enPassantSquare;
@@ -255,13 +253,13 @@ class MoveGenerator {
         Bitboard temp = new Bitboard(0x0000000000000000);
         attackerIndexes = new List<int>();
 
-        int kingIndex = (board.Type[PieceType.King] & board.Color[board.IsWhiteTurn]).FirstBit;
+        int kingIndex = (board.Type[Piece.King] & board.Color[board.IsWhiteTurn]).FirstBit;
 
-        Bitboard pawns = board.Type[PieceType.Pawn] & board.Color[!board.IsWhiteTurn];
-        Bitboard knights = board.Type[PieceType.Knight] & board.Color[!board.IsWhiteTurn];
-        Bitboard bishops = board.Type[PieceType.Bishop] & board.Color[!board.IsWhiteTurn];
-        Bitboard rooks = board.Type[PieceType.Rook] & board.Color[!board.IsWhiteTurn];
-        Bitboard queens = board.Type[PieceType.Queen] & board.Color[!board.IsWhiteTurn];
+        Bitboard pawns = board.Type[Piece.Pawn] & board.Color[!board.IsWhiteTurn];
+        Bitboard knights = board.Type[Piece.Knight] & board.Color[!board.IsWhiteTurn];
+        Bitboard bishops = board.Type[Piece.Bishop] & board.Color[!board.IsWhiteTurn];
+        Bitboard rooks = board.Type[Piece.Rook] & board.Color[!board.IsWhiteTurn];
+        Bitboard queens = board.Type[Piece.Queen] & board.Color[!board.IsWhiteTurn];
         
         // Pawns 
         if (board.IsWhiteTurn) {
@@ -285,7 +283,7 @@ class MoveGenerator {
         }
 
         // Knights
-        Bitboard knightMoves = BitboardHelper.KnightMoves(kingIndex);
+        Bitboard knightMoves = MoveHelper.KnightMoves(kingIndex);
         if (!(knightMoves & knights).IsEmpty) {
             temp |= knightMoves & knights;
             attackerIndexes.Add((knightMoves & knights).FirstBit);
@@ -293,11 +291,11 @@ class MoveGenerator {
 
         // Straight moves
         Bitboard straightAttackers = rooks | queens;
-        Bitboard straightMoves = BitboardHelper.StraightMoves(board, kingIndex);
+        Bitboard straightMoves = MoveHelper.StraightMoves(board, kingIndex);
 
         while (!straightAttackers.IsEmpty) {
             int index = straightAttackers.FirstBit;
-            Bitboard straightAttack = BitboardHelper.StraightMoves(board, index);
+            Bitboard straightAttack = MoveHelper.StraightMoves(board, index);
 
             if (!(straightAttack & BitboardHelper.GetBitAt(kingIndex)).IsEmpty) {
                 temp |= straightAttack & straightMoves;
@@ -311,11 +309,11 @@ class MoveGenerator {
 
         // Diagonal moves
         Bitboard diagonalAttackers = bishops | queens;
-        Bitboard diagonalMoves = BitboardHelper.DiagonalMoves(board, kingIndex);
+        Bitboard diagonalMoves = MoveHelper.DiagonalMoves(board, kingIndex);
 
         while (!diagonalAttackers.IsEmpty) {
             int index = diagonalAttackers.FirstBit;
-            Bitboard diagonalAttack = BitboardHelper.DiagonalMoves(board, index);
+            Bitboard diagonalAttack = MoveHelper.DiagonalMoves(board, index);
 
             if (!(diagonalAttack & BitboardHelper.GetBitAt(kingIndex)).IsEmpty) {
                 temp |= diagonalAttack & diagonalMoves;
@@ -343,17 +341,17 @@ class MoveGenerator {
     public static void GetPinnedPieces(Board board) {
         pins.Clear();
 
-        int kingIndex = (board.Type[PieceType.King] & board.Color[board.IsWhiteTurn]).FirstBit;
+        int kingIndex = (board.Type[Piece.King] & board.Color[board.IsWhiteTurn]).FirstBit;
 
-        Bitboard rooks = board.Type[PieceType.Rook] & board.Color[!board.IsWhiteTurn];
-        Bitboard bishops = board.Type[PieceType.Bishop] & board.Color[!board.IsWhiteTurn];
-        Bitboard queens = board.Type[PieceType.Queen] & board.Color[!board.IsWhiteTurn];
+        Bitboard rooks = board.Type[Piece.Rook] & board.Color[!board.IsWhiteTurn];
+        Bitboard bishops = board.Type[Piece.Bishop] & board.Color[!board.IsWhiteTurn];
+        Bitboard queens = board.Type[Piece.Queen] & board.Color[!board.IsWhiteTurn];
 
         Bitboard straightAttackers = rooks | queens;
         Bitboard diagonalAttackers = bishops | queens;
 
-        Bitboard straightMoves = BitboardHelper.StraightMoves(board, kingIndex);
-        Bitboard diagonalMoves = BitboardHelper.DiagonalMoves(board, kingIndex);
+        Bitboard straightMoves = MoveHelper.StraightMoves(board, kingIndex);
+        Bitboard diagonalMoves = MoveHelper.DiagonalMoves(board, kingIndex);
 
         // Step 1: Treat king as a sliding piece and generate attack rays
         // Step 2: Check if king rays intersect with any of the enemy sliding pieces and king is not in check
@@ -364,12 +362,12 @@ class MoveGenerator {
             int index = straightAttackers.FirstBit;
 
             if (kingIndex % 8 == index % 8 || kingIndex / 8 == index / 8) {
-                Bitboard straightAttack = BitboardHelper.StraightMoves(board, index);
+                Bitboard straightAttack = MoveHelper.StraightMoves(board, index);
 
                 if (!(straightAttack & straightMoves & board.Color[board.IsWhiteTurn]).IsEmpty && (straightAttack & BitboardHelper.GetBitAt(kingIndex)).IsEmpty) {
                     int pinnedPieceIndex = (straightAttack & straightMoves & board.Color[board.IsWhiteTurn]).FirstBit;
                     
-                    pins.Add(pinnedPieceIndex, (straightAttack | straightMoves | BitboardHelper.GetBitAt(index)) & (BitboardHelper.StraightMoves(board, pinnedPieceIndex) | BitboardHelper.GetBitAt(pinnedPieceIndex)));
+                    pins.Add(pinnedPieceIndex, (straightAttack | straightMoves | BitboardHelper.GetBitAt(index)) & (MoveHelper.StraightMoves(board, pinnedPieceIndex) | BitboardHelper.GetBitAt(pinnedPieceIndex)));
                 }
             }
 
@@ -380,12 +378,12 @@ class MoveGenerator {
             int index = diagonalAttackers.FirstBit;
 
             if (kingIndex % 8 - kingIndex / 8 == index % 8 - index / 8 || kingIndex % 8 + kingIndex / 8 == index % 8 + index / 8) {
-                Bitboard diagonalAttack = BitboardHelper.DiagonalMoves(board, index);
+                Bitboard diagonalAttack = MoveHelper.DiagonalMoves(board, index);
 
                 if (!(diagonalAttack & diagonalMoves & board.Color[board.IsWhiteTurn]).IsEmpty && (diagonalAttack & BitboardHelper.GetBitAt(kingIndex)).IsEmpty) {
                     int pinnedPieceIndex = (diagonalAttack & diagonalMoves & board.Color[board.IsWhiteTurn]).FirstBit;
 
-                    pins.Add(pinnedPieceIndex, (diagonalAttack | diagonalMoves | BitboardHelper.GetBitAt(index)) & (BitboardHelper.DiagonalMoves(board, pinnedPieceIndex) | BitboardHelper.GetBitAt(pinnedPieceIndex)));
+                    pins.Add(pinnedPieceIndex, (diagonalAttack | diagonalMoves | BitboardHelper.GetBitAt(index)) & (MoveHelper.DiagonalMoves(board, pinnedPieceIndex) | BitboardHelper.GetBitAt(pinnedPieceIndex)));
                 }
             }
 

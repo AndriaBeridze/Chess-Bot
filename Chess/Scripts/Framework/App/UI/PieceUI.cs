@@ -1,8 +1,8 @@
 namespace Chess.App;
 
+using Chess.API;
 using Raylib_cs;
 using System.Numerics;
-using Chess.API;
 
 class PieceUI {
     public Coord Coord;

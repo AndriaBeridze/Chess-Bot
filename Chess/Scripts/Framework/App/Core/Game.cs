@@ -4,30 +4,31 @@ using Raylib_cs;
 using Chess.API;
 using Chess.ChessEngine;
 using Chess.Bot;
+using System.Dynamic;
 
 class Game {
     private Player whitePlayer;
     private Player blackPlayer;
 
-    private static Board board = new Board("");
+    private Board board;
 
-    private static BoardUI boardUI = new BoardUI();
+    private BoardUI boardUI;
     private CoordUI coordUI;
-    private static PositionUI positionUI = new PositionUI(board);
+    private PositionUI positionUI;
     private PlayerUI playerUI;
     private GameStatus gameStatus;
 
-    private static OpeningBook openingBook = new OpeningBook();
+    private OpeningBook openingBook;
 
-    private static Player currentPlayer = new HumanPlayer(true);
-    private static bool canBeChecked = true;
+    private Player currentPlayer;
+    private bool statusCheck = true;
 
-    public Game(Player whitePlayer, Player blackPlayer, string fen, bool isWhitePerspective) {
+    public Game(Player whitePlayer, Player blackPlayer, string fen, bool fromWhitesView) {
         this.whitePlayer = whitePlayer;
         this.blackPlayer = blackPlayer;
 
-        // Does board need to be rotated to show it from black's perspective?
-        Theme.IsWhitePerspective = isWhitePerspective;
+        // Setting the view of the board, usually from the human player's perspective
+        Theme.FromWhitesView = fromWhitesView;
 
         board = new Board(fen);
 
@@ -35,7 +36,6 @@ class Game {
         coordUI = new CoordUI();
         positionUI = new PositionUI(board);
         playerUI = new PlayerUI(whitePlayer.PlayerType, blackPlayer.PlayerType);
-
         gameStatus = new GameStatus("");
 
         openingBook = new OpeningBook();
@@ -44,7 +44,8 @@ class Game {
     }
 
     public void Update() {
-        if (!canBeChecked) goto Skip;
+        // There was a bug with checking the status of the game when the bot was thinking, so it is not checked during the bot's turn
+        if (!statusCheck) goto Update; 
 
         string status = Arbiter.Status(board);
         if (status != "") {
@@ -59,59 +60,40 @@ class Game {
             return;
         }
 
-        Skip:
+        Update:
 
         // Displaying bot moves
         currentPlayer = board.IsWhiteTurn ? whitePlayer : blackPlayer;
-        if (currentPlayer.IsBot && canBeChecked) {
-            canBeChecked = false;
-
-            Task.Run(() => {
-                GetBotMove();
-            });
+        if (currentPlayer.IsBot && statusCheck) {
+            statusCheck = false;
+            // Running the bot move in a separate thread, so the game doesn't freeze, and the user can interact with the UI
+            Task.Run(GetBotMove);
         }
 
         positionUI.Update(board, boardUI, highlightMoves : currentPlayer.IsHuman);
-
-        if (board.MovesMade.Count > 0 && board.MovesMade[board.MovesMade.Count - 1].IsPromotion) {
-            Move move = board.MovesMade[board.MovesMade.Count - 1];
-            int index = positionUI.Pieces.FindIndex(piece => piece.Coord == new Coord(move.Target));
-            int color = board.IsWhiteTurn ? PieceType.Black : PieceType.White;
-            if (index == -1) return;
-            switch (move.Flag) {
-                case Move.QueenPromotion:
-                    positionUI.Pieces[index] = new PieceUI(new Piece(color, PieceType.Queen), new Coord(move.Target));
-                    break;
-                case Move.RookPromotion:
-                    positionUI.Pieces[index] = new PieceUI(new Piece(color, PieceType.Rook), new Coord(move.Target));
-                    break;
-                case Move.BishopPromotion:
-                    positionUI.Pieces[index] = new PieceUI(new Piece(color, PieceType.Bishop), new Coord(move.Target));
-                    break;
-                case Move.KnightPromotion:
-                    positionUI.Pieces[index] = new PieceUI(new Piece(color, PieceType.Knight), new Coord(move.Target));
-                    break;
-            }   
-        }
+        positionUI.AnimatePromotion(board); // There was an issue with changing the piece UI during a thread sleep, so it is checked separately
     }
 
-    private static void GetBotMove() {
-        Move move = openingBook.GetMove(board.MovesMade);
-        if (move.IsNull) move = currentPlayer.Search(board);
+    private void GetBotMove() {
+        Move move = openingBook.GetMove(board.MovesMade); // Check if there is a matching opening move
+        if (move.IsNull) move = currentPlayer.Search(board); // If not, search for a move
 
+        // Piece animation is also done in a separate thread
+        // There is no need to do this, since animation is very short and doesn't affect the UI interface
+        // But it is done to keep the code consistent
         Task.Run(() => {
             AnimateMove(move);
         });
     }
 
-    private static void AnimateMove(Move move) {
+    private void AnimateMove(Move move) {
         positionUI.AnimateMove(move, board);
-        board.MakeMove(move, record : true);
+        board.MakeMove(move, record : true); // Record the move since it is being recorded in the UI
         boardUI.SetLastMove(move);
 
-        Thread.Sleep(100);
+        Thread.Sleep(100); // Short delay to make animations more pleasant
 
-        canBeChecked = true;
+        statusCheck = true;
     }
 
     public void Render() {

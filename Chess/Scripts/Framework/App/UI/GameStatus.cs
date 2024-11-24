@@ -1,8 +1,7 @@
 namespace Chess.API;
 
-using System.IO.Compression;
-using System.Numerics;
 using Raylib_cs;
+using System.Numerics;
 
 public class GameStatus {
     // This is to display the game status on the screen

@@ -1,17 +1,16 @@
 namespace Chess.App;
 
-using Raylib_cs;
 using Chess.API;
-using Chess.ChessEngine;
+using Raylib_cs;
 
 class BoardUI {
     private Rectangle desk; // Board frame
     private SquareUI[] squares;
-    private Move? lastMove; // For highlighting the last move
+    private Move lastMove = Move.NullMove; // For highlighting the last move
 
     public BoardUI() {
-        int deskX = UIHelper.GetScreenX(Theme.IsWhitePerspective ? 0 : 7) - Theme.BorderSize;
-        int deskY = UIHelper.GetScreenY(Theme.IsWhitePerspective ? 7 : 0) - Theme.BorderSize;
+        int deskX = UIHelper.GetScreenX(Theme.FromWhitesView ? 0 : 7) - Theme.BorderSize;
+        int deskY = UIHelper.GetScreenY(Theme.FromWhitesView ? 7 : 0) - Theme.BorderSize;
         int deskSideLength = 8 * Theme.SquareSideLength + 2 * Theme.BorderSize;
 
         desk = new Rectangle(deskX, deskY, deskSideLength, deskSideLength);
@@ -37,7 +36,7 @@ class BoardUI {
     }
 
     // To highlight the last move on the board
-    public void SetLastMove(Move? move) {
+    public void SetLastMove(Move move) {
         lastMove = move;
         Clear();
     }
@@ -52,7 +51,7 @@ class BoardUI {
         for (int i = 0; i < 64; i++) {
             squares[i] = new SquareUI(new Coord(i));
         }
-        if (lastMove != null) {
+        if (!lastMove.IsNull) {
             HighlightSquare(lastMove.Source);
             HighlightSquare(lastMove.Target);
         }

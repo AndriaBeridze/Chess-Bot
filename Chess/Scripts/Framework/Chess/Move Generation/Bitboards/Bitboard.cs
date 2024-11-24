@@ -15,6 +15,7 @@ class Bitboard {
     public int FirstBit => (int) Math.Log2(Value & (ulong) - (long) Value);
     
     public bool IsEmpty => this == Null;
+    public bool Contains(int index) => (Value & (1UL << index)) != 0;
 
     public static Bitboard operator |(Bitboard a, Bitboard b) => new Bitboard(a.Value | b.Value);
     public static Bitboard operator &(Bitboard a, Bitboard b) => new Bitboard(a.Value & b.Value);
