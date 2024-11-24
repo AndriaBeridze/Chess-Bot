@@ -165,7 +165,7 @@ class PositionUI {
     }
 
     public void Animate(int index, Move move) {
-        int frames = 30;
+        int frames = 25;
         double startX = UIHelper.GetScreenX(BoardHelper.ColumnIndex(move.Source));
         double startY = UIHelper.GetScreenY(BoardHelper.RowIndex(move.Source));
         double endX = UIHelper.GetScreenX(BoardHelper.ColumnIndex(move.Target));

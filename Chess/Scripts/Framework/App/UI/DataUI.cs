@@ -36,7 +36,8 @@ class DataUI {
             evalText = "Book";
         }
         if (Math.Abs(eval) > 10000.0f) {
-            int mateIn = (depth - (int) ((Math.Abs(eval) - 10000.0f) * 100)) / 2;
+            int numOfMoves = depth - (int) (Math.Abs(eval) * 100 - 1000000 + 1);
+            int mateIn = numOfMoves / 2 + numOfMoves % 2;
             evalText = $"M{ mateIn }";
         }
         Raylib.DrawTextEx(font, $"Eval: { evalText }", new Vector2(evalTextX, evalTextY), fontSize, 1, Theme.EvalDataColor);
