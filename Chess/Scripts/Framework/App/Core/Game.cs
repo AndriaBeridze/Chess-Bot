@@ -15,16 +15,12 @@ class Game {
     private CoordUI coordUI;
     private PositionUI positionUI;
     private PlayerUI playerUI;
-    private GameStatus gameStatus;
-    private DataUI dataUI;
+    private GameStatusUI gameStatusUI;
 
     private OpeningBook openingBook;
 
     private Player currentPlayer;
     private bool statusCheck = true;
-
-    private int depth = 0;
-    private float eval = 0;
 
     public Game(Player whitePlayer, Player blackPlayer, string fen, bool fromWhitesView) {
         this.whitePlayer = whitePlayer;
@@ -39,8 +35,7 @@ class Game {
         coordUI = new CoordUI();
         positionUI = new PositionUI(board);
         playerUI = new PlayerUI(whitePlayer.PlayerType, blackPlayer.PlayerType);
-        gameStatus = new GameStatus("");
-        dataUI = new DataUI(0, 0);
+        gameStatusUI = new GameStatusUI("");
 
         openingBook = new OpeningBook();
 
@@ -55,20 +50,11 @@ class Game {
         if (status != "") {
             Color color = Color.White;
 
-            if (status == "Checkmate") {
-                color = Theme.CheckmateTextColor;
-                dataUI.Update(depth, (1000000 + depth) / 100.0f);
-            }
-            if (status == "Stalemate") {
-                color = Theme.StalemateTextColor;
-                dataUI.Update(depth, 0);
-            }
-            if (status == "Draw") {
-                color = Theme.DrawTextColor;
-                dataUI.Update(depth, 0);
-            }
-
-            gameStatus = new GameStatus(status, color);
+            if (status == "Checkmate") color = Theme.CheckmateTextColor;
+            if (status == "Stalemate") color = Theme.StalemateTextColor;
+            if (status == "Draw") color = Theme.DrawTextColor;
+            
+            gameStatusUI = new GameStatusUI(status, color);
 
             return;
         }
@@ -83,15 +69,13 @@ class Game {
             Task.Run(GetBotMove);
         }
 
-        positionUI.Update(board, boardUI, highlightMoves : currentPlayer.IsHuman);
+        positionUI.Update(board, boardUI, highlightMoves : statusCheck);
         positionUI.AnimatePromotion(board); // There was an issue with changing the piece UI during a thread sleep, so it is checked separately
     }
 
     private void GetBotMove() {
         Move move = openingBook.GetMove(board.MovesMade); // Check if there is a matching opening move
-        if (move.IsNull) move = currentPlayer.Search(board, ref depth, ref eval); // If not, search for a move
-
-        dataUI.Update(depth, eval);
+        if (move.IsNull) move = currentPlayer.Search(board); // If not, search for a move
 
         // Piece animation is also done in a separate thread
         // There is no need to do this, since animation is very short and doesn't affect the UI interface
@@ -116,7 +100,6 @@ class Game {
         coordUI.Render();
         positionUI.Render();
         playerUI.Render();
-        gameStatus.Render();
-        dataUI.Render();
+        gameStatusUI.Render();
     }
 }

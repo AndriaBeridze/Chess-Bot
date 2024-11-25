@@ -10,6 +10,8 @@ class PositionUI {
     private int draggedPiece = -1; // To keep track of the piece during dragging
     private int animatedPiece = -1; // To keep track of the piece during animation
 
+    private int promotionLastChecked = -1;
+
     public PositionUI(Board board) {
         pieces = new List<PieceUI>();
         SetUpPosition(board);
@@ -84,6 +86,7 @@ class PositionUI {
             }
 
             if (!placedOnValidSquare && draggedPiece != -1) {
+                Sounds.Play("illegal");
                 pieces[draggedPiece].ResetPosition(); // If it is illegal to move on that square, reset the piece to its original position
             }
 
@@ -119,6 +122,7 @@ class PositionUI {
                 pieces.RemoveAt(index);
             } 
             
+            PlaySound(move, board);
             board.MakeMove(move, record : true);
         }
     }
@@ -162,6 +166,8 @@ class PositionUI {
             index = pieces.FindIndex(p => p.Coord.SquareIndex == target);
             pieces.RemoveAt(index);
         }
+
+        PlaySound(move, board);
     }
 
     public void Animate(int index, Move move) {
@@ -185,16 +191,34 @@ class PositionUI {
         animatedPiece = -1;
     }
 
+    private void PlaySound(Move move, Board board) {
+        bool soundPlayed = false;
+        
+        board.MakeMove(move);
+        if (Arbiter.Status(board) != "") { soundPlayed = true; Sounds.Play("game-over"); }
+        else if (MoveHelper.IsInCheck(board, true) || MoveHelper.IsInCheck(board, false)) { soundPlayed = true; Sounds.Play("check"); }
+        board.UnmakeMove(move);
+        
+        if (soundPlayed) return;
+
+        if (board.Square[move.Target].Type != Piece.None) Sounds.Play("capture");
+        else if (move.IsPromotion) Sounds.Play("promotion");
+        else if (move.IsCastling) Sounds.Play("castle");
+        else Sounds.Play("move");
+    }
+
     // Special case that needs to be handled separately due to the bug before
     public void AnimatePromotion(Board board) {
         if (board.MovesMade.Count == 0) return;
         if (!board.MovesMade[board.MovesMade.Count - 1].IsPromotion) return;
+        if (promotionLastChecked == board.MovesMade.Count) return;
 
         Move move = board.MovesMade[board.MovesMade.Count - 1];
         int color = board.IsWhiteTurn ? Piece.Black : Piece.White;
         int index = pieces.FindIndex(piece => piece.Coord == new Coord(move.Target));
         
         if (index == -1) return;
+        promotionLastChecked = board.MovesMade.Count;
 
         pieces[index] = new PieceUI(new Piece(color, move.PromotingTo), new Coord(move.Target));
     }

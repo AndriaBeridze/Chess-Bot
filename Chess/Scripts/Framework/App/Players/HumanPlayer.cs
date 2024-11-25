@@ -6,7 +6,7 @@ using Chess.ChessEngine;
 class HumanPlayer : Player {
     public HumanPlayer(bool isWhite) : base(isWhite, true) {}
 
-    public override Move Search(Board board, ref int depth, ref float eval) {
+    public override Move Search(Board board) {
         return Move.NullMove;
     }
 }

@@ -18,14 +18,12 @@ class Bot {
         { Piece.King, 1000000000 }
     };
 
-    public static Move Think(Board board, ref int depth, ref float eval) {
+    public static Move Think(Board board) {
         DateTime time = DateTime.Now;
         for (int i = 1; i < int.MaxValue; i++) {
-            eval = Search(board, i) * (board.IsWhiteTurn ? 1 : -1) / 100.0f;
-            depth = i;
-
+            Search(board, i);
             TimeSpan elapsed = DateTime.Now - time;
-            if (elapsed.TotalSeconds > 1.3f) break;
+            if (elapsed.TotalSeconds > 0.5f) break;
         }
         return bestMove;
     }

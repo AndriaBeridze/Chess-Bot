@@ -9,6 +9,7 @@ class Program {
         Raylib.SetTraceLogLevel(TraceLogLevel.None);
         Raylib.InitWindow(Theme.ScreenWidth, Theme.ScreenHeight, "Chess by Andria Beridze");
         Raylib.SetTargetFPS(60);
+        Raylib.InitAudioDevice();
 
         // Default game: Human vs Bot | Initial position | Board visible from white's view
         Game game = new Game(new BotPlayer(true), new BotPlayer(false), "", true);
