@@ -9,9 +9,12 @@ class TimerUI {
     private bool isOnTop;
 
     private static int fontSize = 65;
-    private static int offset = 10;
+
     private const int rectWidth = 250;
     private const int rectHeight = 60;
+
+    private static int offset = 10; // There is a small offset between the timer display and the border
+
     private Font font = UIHelper.LoadFont(fontSize);
 
     private bool isWhite => isOnTop != Theme.FromWhitesView;
@@ -38,7 +41,6 @@ class TimerUI {
         if (isOnTop) rectY = spaceBetween - offset - fontSize + 6;
         else rectY = spaceBetween + Theme.SquareSideLength * 8 + Theme.BorderSize * 2 + offset ;
 
-
         Color rectColor;
         if (Timer.IsRunning) rectColor = isWhite ? Theme.TimerColorLightActive : Theme.TimerColorDarkActive;
         else rectColor = isWhite ? Theme.TimerColorLightDisabled : Theme.TimerColorDarkDisabled;
@@ -46,11 +48,14 @@ class TimerUI {
         Raylib.DrawRectangle(rectX, rectY, rectWidth, rectHeight, rectColor);
 
         string text;
+        // If the time is less than 1 minute, display it in seconds.deciseconds
+        // Otherwise, display it in minutes:seconds
         if (Timer.Time < 60000000) {
             text = $"{ Timer.Time / 1000000:D2}.{ Timer.Time % 1000000 / 100000 }";
         } else {
             text = $"{ Timer.Time / 60000000:D2}:{ Timer.Time % 60000000 / 1000000:D2}";
         }
+        
         Vector2 textSize = Raylib.MeasureTextEx(font, text, fontSize, 1);
         int textX = rectX + rectWidth / 2 - (int) textSize.X / 2;
         int textY = rectY + rectHeight / 2 - (int) textSize.Y / 2 + 2;

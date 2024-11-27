@@ -19,11 +19,17 @@ class Game {
     private PositionUI positionUI;
     private PlayerUI playerUI;
     private GameStatusUI gameStatusUI;
+    private Buttons buttons;
 
     private OpeningBook openingBook;
 
     private Player currentPlayer;
+
     private bool statusCheck = true;
+    private bool gameChanged = false;
+
+    private Task BotTask;
+    private Task AnimationTask;
 
     public Game(Player whitePlayer, Player blackPlayer, string fen, bool fromWhitesView) {
         this.whitePlayer = whitePlayer;
@@ -45,16 +51,21 @@ class Game {
         positionUI = new PositionUI(board);
         playerUI = new PlayerUI(whitePlayer.PlayerType, blackPlayer.PlayerType);
         gameStatusUI = new GameStatusUI("");
+        buttons = new Buttons();
 
         openingBook = new OpeningBook();
 
         currentPlayer = board.IsWhiteTurn ? whitePlayer : blackPlayer;
+
+        BotTask = Task.Run(() => { });
+        AnimationTask = Task.Run(() => { });
     }
 
     public void Update() {
         // There was a bug with checking the status of the game when the bot was thinking, so it is not checked during the bot's turn
         if (!statusCheck) goto Update; 
 
+        // If the game has ended, stop tendering and display the game status
         string status = Arbiter.Status(board, whiteTimerUI.Timer, blackTimerUI.Timer);
         if (status != "") {
             Color color = Color.White;
@@ -75,7 +86,7 @@ class Game {
         if (currentPlayer.IsBot && statusCheck) {
             statusCheck = false;
             // Running the bot move in a separate thread, so the game doesn't freeze, and the user can interact with the UI
-            Task.Run(GetBotMove);
+            BotTask = Task.Run(GetBotMove);
         }
 
         positionUI.Update(board, boardUI, highlightMoves : statusCheck, ref whiteTimerUI, ref blackTimerUI);
@@ -83,6 +94,11 @@ class Game {
         
         whiteTimerUI.Update();
         blackTimerUI.Update();
+
+        int buttonUpdate = buttons.Update();
+        if (buttonUpdate != -1) {
+            HandleButtonPress(buttonUpdate);
+        }
     }
 
     private void GetBotMove() {
@@ -92,14 +108,15 @@ class Game {
         // Piece animation is also done in a separate thread
         // There is no need to do this, since animation is very short and doesn't affect the UI interface
         // But it is done to keep the code consistent
-        Task.Run(() => {
+        AnimationTask = Task.Run(() => {
             AnimateMove(move);
         });
     }
 
     private void AnimateMove(Move move) {
-        if (Arbiter.Status(board, whiteTimerUI.Timer, blackTimerUI.Timer) != "") {
+        if (Arbiter.Status(board, whiteTimerUI.Timer, blackTimerUI.Timer) != "" || gameChanged) {
             statusCheck = true;
+            gameChanged = false;
             return;
         }
         
@@ -119,6 +136,50 @@ class Game {
         statusCheck = true;
     }
 
+    public void HandleButtonPress(int buttonUpdate) {
+        Task.WaitAll([BotTask, AnimationTask]);
+        switch (buttonUpdate) {
+            case 0: // Play as White
+                whitePlayer = new HumanPlayer(true);
+                blackPlayer = new BotPlayer(false);
+                Theme.FromWhitesView = true;
+                break;
+            case 1: // Play as Black
+                whitePlayer = new BotPlayer(true);
+                blackPlayer = new HumanPlayer(false);
+                Theme.FromWhitesView = false;
+                break;
+            case 2: // AI vs AI
+                whitePlayer = new BotPlayer(true);
+                blackPlayer = new BotPlayer(false);
+                Theme.FromWhitesView = true;
+                break;
+        }
+
+        // Resetting the game
+        whiteTimerUI = new TimerUI(new Timer(Theme.TimeLimit), !Theme.FromWhitesView);
+        blackTimerUI = new TimerUI(new Timer(Theme.TimeLimit), Theme.FromWhitesView);
+
+        board = new Board("");
+
+        if (board.IsWhiteTurn) blackTimerUI.Stop();
+        else whiteTimerUI.Stop();
+
+        boardUI = new BoardUI();
+        coordUI = new CoordUI();
+        positionUI = new PositionUI(board);
+        playerUI = new PlayerUI(whitePlayer.PlayerType, blackPlayer.PlayerType);
+        gameStatusUI = new GameStatusUI("");
+        buttons = new Buttons();
+
+        openingBook = new OpeningBook();
+
+        currentPlayer = board.IsWhiteTurn ? whitePlayer : blackPlayer;
+
+        statusCheck = true;
+        gameChanged = true;
+    }
+
     public void Render() {
         boardUI.Render();
         coordUI.Render();
@@ -127,5 +188,6 @@ class Game {
         gameStatusUI.Render();
         whiteTimerUI.Render();
         blackTimerUI.Render();
+        buttons.Render();
     }
 }

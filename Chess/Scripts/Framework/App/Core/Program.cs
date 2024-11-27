@@ -11,7 +11,7 @@ class Program {
         Raylib.InitAudioDevice();
 
         // Default game: Human vs Bot | Initial position | Board visible from white's view
-        Game game = new Game(new BotPlayer(true), new HumanPlayer(false), "", true);
+        Game game = new Game(new HumanPlayer(true), new BotPlayer(false), "", true);
 
         while (!Raylib.WindowShouldClose()) {
             Raylib.BeginDrawing();

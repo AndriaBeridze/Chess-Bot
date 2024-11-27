@@ -33,6 +33,7 @@ class Board {
 
     public Board(string fen) {
         FenUtility.LoadFen(fen, this);
+        MovesMade = new List<Move>(); // Clearing the list of moves after resetting the game
     }
 
     public void SwitchTurn() => IsWhiteTurn = !IsWhiteTurn;

@@ -5,7 +5,7 @@ using System.Numerics;
 
 public class GameStatusUI {
     // This is to display the game status on the screen
-    // Possible values are "Checkmate", "Stalemate", "Draw"
+    // Possible values are "Checkmate", "Stalemate", "Draw", "Time Out"
     private string text;
     private Color color = Color.White;
 
@@ -25,7 +25,7 @@ public class GameStatusUI {
 
     public void Render() { 
         Vector2 textSize = Raylib.MeasureTextEx(font, this.text, fontSize, 1);
-        int x = 3 * (Theme.ScreenWidth / 2 - 4 * Theme.SquareSideLength - Theme.BorderSize) / 2 + 8 * Theme.SquareSideLength + 2 * Theme.BorderSize - (int) textSize.X / 2;
+        int x = (Theme.ScreenWidth / 2 - 4 * Theme.SquareSideLength - Theme.BorderSize) / 2 - (int) textSize.X / 2;
         int y = Theme.ScreenHeight / 2 - fontSize / 2;
 
         Raylib.DrawTextEx(font, this.text, new Vector2(x, y), fontSize, 1, color);

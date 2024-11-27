@@ -19,6 +19,9 @@ class BoardUI {
         for (int i = 0; i < 64; i++) {
             squares[i] = new SquareUI(new Coord(i));
         }
+        
+        lastMove = Move.NullMove; // When the game is started, there is no last move
+        Clear();
     }
 
     public void SetColor(int index, Color color) {
