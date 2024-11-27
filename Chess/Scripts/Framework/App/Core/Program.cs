@@ -2,7 +2,6 @@
 
 using Chess.API;
 using Raylib_cs;
-using Chess.Testing;
 
 class Program {
     static void Main(string[] args) {
@@ -12,7 +11,7 @@ class Program {
         Raylib.InitAudioDevice();
 
         // Default game: Human vs Bot | Initial position | Board visible from white's view
-        Game game = new Game(new BotPlayer(true), new BotPlayer(false), "", true);
+        Game game = new Game(new BotPlayer(true), new HumanPlayer(false), "", true);
 
         while (!Raylib.WindowShouldClose()) {
             Raylib.BeginDrawing();

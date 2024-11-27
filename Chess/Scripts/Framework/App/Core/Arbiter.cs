@@ -66,10 +66,12 @@ class Arbiter {
         return true;
     }
 
-    public static string Status(Board board) {
+    public static string Status(Board board, Timer? whiteTimer = null, Timer? blackTimer = null) {
         if (IsCheckmate(board)) return "Checkmate";
         if (IsStalemate(board)) return "Stalemate";
         if (IsDraw(board)) return "Draw";
+        if (whiteTimer != null && whiteTimer.Time == 0) return "Time Out";
+        if (blackTimer != null && blackTimer.Time == 0) return "Time Out";
 
         return "";
     }

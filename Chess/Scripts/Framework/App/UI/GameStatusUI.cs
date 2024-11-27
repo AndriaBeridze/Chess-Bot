@@ -10,7 +10,7 @@ public class GameStatusUI {
     private Color color = Color.White;
 
     private Font font;
-    private const int fontSize = 90;
+    private const int fontSize = 80;
 
     public GameStatusUI(string text) {
         this.text = text;

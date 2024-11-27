@@ -26,7 +26,7 @@ class PlayerUI {
 
         x = UIHelper.GetScreenX(Theme.FromWhitesView ? 0 : 7);
         if (Theme.FromWhitesView) y = spaceBetween + Theme.SquareSideLength * 8 + Theme.BorderSize * 2 + offset;
-        else y = spaceBetween - offset + 5 - fontSize;
+        else y = spaceBetween - offset - fontSize;
         
         Raylib.DrawTextEx(font, $"White: { whitePlayer }", new Vector2(x, y), fontSize, 1, fontColor);
     }

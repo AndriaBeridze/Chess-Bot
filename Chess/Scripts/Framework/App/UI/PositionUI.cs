@@ -27,7 +27,7 @@ class PositionUI {
         }
     }
 
-    public void Update(Board board, BoardUI boardUI, bool highlightMoves) {
+    public void Update(Board board, BoardUI boardUI, bool highlightMoves, ref TimerUI whiteTimerUI, ref TimerUI blackTimerUI) {
         Move move = Move.NullMove;
         
         if (Raylib.IsMouseButtonPressed(MouseButton.Left)) {
@@ -124,6 +124,13 @@ class PositionUI {
             
             PlaySound(move, board);
             board.MakeMove(move, record : true);
+            if (board.IsWhiteTurn) {
+                whiteTimerUI.Start();
+                blackTimerUI.Stop();
+            } else {
+                blackTimerUI.Start();
+                whiteTimerUI.Stop();
+            }
         }
     }
 
