@@ -13,8 +13,8 @@ class Buttons {
     private Rectangle buttonThreeBounds;
     private Vector2 buttonThreeTextPosition;
 
-    private int width = 350;
-    private int height = 75;
+    private int width = 250;
+    private int height = 55;
     private int margin = 20;
 
     private int buttonOneState = 0;
@@ -25,7 +25,7 @@ class Buttons {
     private string buttonTwoText = "Play as Black";
     private string buttonThreeText = "Play as White";
 
-    private static int fontSize = 55;
+    private static int fontSize = 42;
     private Font font = UIHelper.LoadFont(fontSize);
 
     public Buttons() {

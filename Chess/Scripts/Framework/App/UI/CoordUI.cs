@@ -9,7 +9,7 @@ class CoordUI() {
     private static string colNames = Theme.FromWhitesView ? "ABCDEFGH" : "HGFEDCBA";
 
     private static int offset = 5;
-    private static int fontSize = 35; // Change this if you want to adjust the font size
+    private static int fontSize = 28; // Change this if you want to adjust the font size
 
     private Font font = UIHelper.LoadFont(fontSize);
 

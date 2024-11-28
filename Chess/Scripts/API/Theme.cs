@@ -5,13 +5,13 @@ using Raylib_cs;
 // Change this if you want to change the colors, screen resolution, etc.
 class Theme {
     // Screen
-    public static int ScreenWidth = 2560;
-    public static int ScreenHeight = 1440;
+    public static int ScreenWidth = 1920;
+    public static int ScreenHeight = 1080;
 
     // Board
     public static bool FromWhitesView = true;
 
-    public static int SquareSideLength = 150;
+    public static int SquareSideLength = 110;
     public static int BorderSize = 20;
 
     public static Color BackgroundColor = new Color(20, 20, 20, 255);
@@ -33,7 +33,7 @@ class Theme {
     public static Color DrawTextColor = new Color(249, 228, 188, 255);
 
     // Timer
-    public static int TimeLimit = (int) (10.0f * 60 * 1000000); // 10 minutes in microseconds (for better precision)
+    public static int TimeLimit = (int) (30.0f * 60 * 1000000); // 10 minutes in microseconds (for better precision)
     public static Color TimerColorLightActive = new Color(200, 200, 200, 255);
     public static Color TimerColorDarkActive = new Color(55, 55, 55, 255);
     public static Color TimerColorLightDisabled = new Color(200, 200, 200, 150);
@@ -46,6 +46,6 @@ class Theme {
     // Buttons
     public static Color ButtonColor = new Color(50, 50, 50, 255);
     public static Color ButtonTextColor = new Color(205, 205, 205, 255);
-    public static Color ButtonHoverColor = new Color(88, 72, 233, 255);
-    public static Color ButtonHoverTextColor = new Color(205, 205, 205, 255);
+    public static Color ButtonHoverColor = new Color(50, 125, 233, 255);
+    public static Color ButtonHoverTextColor = new Color(25, 25, 25, 255);
 }

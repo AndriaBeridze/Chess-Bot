@@ -8,10 +8,10 @@ class TimerUI {
     public Timer Timer;
     private bool isOnTop;
 
-    private static int fontSize = 65;
+    private static int fontSize = 52;
 
-    private const int rectWidth = 250;
-    private const int rectHeight = 60;
+    private const int rectWidth = 200;
+    private const int rectHeight = 48;
 
     private static int offset = 10; // There is a small offset between the timer display and the border
 

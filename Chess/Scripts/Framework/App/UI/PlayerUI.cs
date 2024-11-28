@@ -13,7 +13,7 @@ class PlayerUI {
         this.blackPlayer = blackPlayer;
     }
 
-    private static int fontSize = 60;
+    private static int fontSize = 48;
     private static int offset = 10;
 
     private Font font = UIHelper.LoadFont(fontSize);

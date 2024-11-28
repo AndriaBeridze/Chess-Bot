@@ -4,6 +4,7 @@ using Raylib_cs;
 using Chess.API;
 using Chess.ChessEngine;
 using Chess.Bot;
+using System.Security.Cryptography.X509Certificates;
 
 class Game {
     private Player whitePlayer;
@@ -27,6 +28,7 @@ class Game {
 
     private bool statusCheck = true;
     private bool gameChanged = false;
+    private bool gameOver = false;
 
     private Task BotTask;
     private Task AnimationTask;
@@ -75,8 +77,9 @@ class Game {
             if (status == "Draw") color = Theme.DrawTextColor;
             
             gameStatusUI = new GameStatusUI(status, color);
+            gameOver = true;
 
-            return;
+            goto HandleUI;
         }
 
         Update:
@@ -89,7 +92,14 @@ class Game {
             BotTask = Task.Run(GetBotMove);
         }
 
-        positionUI.Update(board, boardUI, highlightMoves : statusCheck, ref whiteTimerUI, ref blackTimerUI);
+        HandleUI:
+
+        if (gameOver) {
+            whiteTimerUI.Stop();
+            blackTimerUI.Stop();
+        }
+
+        positionUI.Update(board, boardUI, highlightMoves : statusCheck && !gameOver, ref whiteTimerUI, ref blackTimerUI);
         positionUI.AnimatePromotion(board); // There was an issue with changing the piece UI during a thread sleep, so it is checked separately
         
         whiteTimerUI.Update();
@@ -137,7 +147,9 @@ class Game {
     }
 
     public void HandleButtonPress(int buttonUpdate) {
-        Task.WaitAll([BotTask, AnimationTask]);
+        if (!BotTask.IsCompleted) BotTask.Wait();
+        if (!AnimationTask.IsCompleted) AnimationTask.Wait();
+        
         switch (buttonUpdate) {
             case 0: // Play as White
                 whitePlayer = new HumanPlayer(true);
@@ -178,9 +190,11 @@ class Game {
 
         statusCheck = true;
         gameChanged = true;
+        gameOver = false;
     }
 
     public void Render() {
+        buttons.Render();
         boardUI.Render();
         coordUI.Render();
         positionUI.Render();
@@ -188,6 +202,5 @@ class Game {
         gameStatusUI.Render();
         whiteTimerUI.Render();
         blackTimerUI.Render();
-        buttons.Render();
     }
 }
