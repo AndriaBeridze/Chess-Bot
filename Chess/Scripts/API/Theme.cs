@@ -33,7 +33,7 @@ class Theme {
     public static Color DrawTextColor = new Color(249, 228, 188, 255);
 
     // Timer
-    public static int TimeLimit = (int) (30.0f * 60 * 1000000); // 10 minutes in microseconds (for better precision)
+    public static int TimeLimit = (int) (10.0f * 60 * 1000000); // 10 minutes in microseconds (for better precision)
     public static Color TimerColorLightActive = new Color(200, 200, 200, 255);
     public static Color TimerColorDarkActive = new Color(55, 55, 55, 255);
     public static Color TimerColorLightDisabled = new Color(200, 200, 200, 150);
