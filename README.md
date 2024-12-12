@@ -1,8 +1,8 @@
-# ♟️ Chess Bot 1.0
+# ♟️ Chess Bot 1.1
 
 A simple chess program written in C# using the .NET framework. 
 
-![alt text](<Chess/Resources/Screenshot.png>)
+![alt text](<Chess/Resources/Media/Demo.gif>)
 
 ## Strengths and Limitations
 
