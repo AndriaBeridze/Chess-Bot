@@ -48,6 +48,9 @@ class OpeningBook {
                         case 'c':
                             flag = Move.Castling;
                             break;
+                        case 'p':
+                            flag = Move.EnPassant;
+                            break;
                     }
                 }
 
