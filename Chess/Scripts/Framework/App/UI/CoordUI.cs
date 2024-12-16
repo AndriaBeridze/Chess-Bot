@@ -14,6 +14,9 @@ class CoordUI() {
     private Font font = UIHelper.LoadFont(fontSize);
 
     public void Render() {
+        rowNames = Theme.FromWhitesView ? "87654321" : "12345678";
+        colNames = Theme.FromWhitesView ? "ABCDEFGH" : "HGFEDCBA";
+        
         for (int i = 0; i < 8; i++) {
             // Find the i-th square in the bottommost row from the rendering perspective and get its screen coordinates
             Coord coord = new Coord(Theme.FromWhitesView ? -1 : 8, Theme.FromWhitesView ? i + 1 : 6 - i);
