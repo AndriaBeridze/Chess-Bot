@@ -2,6 +2,7 @@ namespace Chess.App;
 
 using Chess.API;
 using Chess.ChessEngine;
+using Chess.Utility;
 using System.Numerics;
 using Raylib_cs;
 
@@ -36,7 +37,7 @@ class PositionUI {
 
             foreach (PieceUI piece in pieces) {
                 // If mouse is not hovering on a piece, ignore it
-                Rectangle rect = new Rectangle(piece.X, piece.Y, Theme.SquareSideLength, Theme.SquareSideLength);
+                Rectangle rect = new Rectangle(piece.X, piece.Y, Settings.SquareSideLength, Settings.SquareSideLength);
                 if (!Raylib.CheckCollisionPointRec(new Vector2(x, y), rect)) continue;
                     
                 draggedPiece = pieces.IndexOf(piece); // Drag the piece
@@ -53,8 +54,8 @@ class PositionUI {
 
         // Center the piece on the mouse cursor
         if (draggedPiece != -1) {
-            pieces[draggedPiece].X = Raylib.GetMouseX() - Theme.SquareSideLength / 2;
-            pieces[draggedPiece].Y = Raylib.GetMouseY() - Theme.SquareSideLength / 2;
+            pieces[draggedPiece].X = Raylib.GetMouseX() - Settings.SquareSideLength / 2;
+            pieces[draggedPiece].Y = Raylib.GetMouseY() - Settings.SquareSideLength / 2;
         }
 
         if (Raylib.IsMouseButtonReleased(MouseButton.Left)) {
@@ -62,7 +63,7 @@ class PositionUI {
 
             for (int i = 0; i < 64; i++) {
                 // If the mouse is not hovering on a square, ignore it
-                Rectangle rect = new Rectangle(UIHelper.GetScreenX(i % 8), UIHelper.GetScreenY(i / 8), Theme.SquareSideLength, Theme.SquareSideLength);
+                Rectangle rect = new Rectangle(UIHelper.GetScreenX(i % 8), UIHelper.GetScreenY(i / 8), Settings.SquareSideLength, Settings.SquareSideLength);
                 if (!Raylib.CheckCollisionPointRec(new Vector2(Raylib.GetMouseX(), Raylib.GetMouseY()), rect)) continue;
                 
                 // If the piece is not dragged or the square is not a valid move, ignore

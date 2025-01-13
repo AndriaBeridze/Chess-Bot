@@ -13,7 +13,7 @@ class OpeningBook {
     public OpeningBook() {
         string[] openings = File.ReadAllLines("Chess/Resources/Openings.txt"); // Openings.txt is a file that contains opening moves in the coordinate notation
 
-        foreach (string opening in openings) {
+        Parallel.ForEach(openings, opening => {
             List<Move> currentOpeningList = new List<Move>();
             string[] moves = opening.Split(' ');
 
@@ -31,6 +31,7 @@ class OpeningBook {
                 // b - Bishop Promotion
                 // n - Knight Promotion
                 // c - Castling
+                // p - En Passant
                 if (move.Length == 5) {
                     switch (move[4]) {
                         case 'q':
@@ -58,7 +59,7 @@ class OpeningBook {
             }
 
             book.Add(currentOpeningList);
-        }
+        });
     }
 
     // Gets random move from the possible opening positions

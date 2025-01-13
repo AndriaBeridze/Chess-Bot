@@ -1,7 +1,8 @@
 namespace Chess.App;
 
-using Raylib_cs;
 using Chess.API;
+using Chess.Utility;
+using Raylib_cs;
 
 class SquareUI {
     public Coord Coord;
@@ -27,6 +28,6 @@ class SquareUI {
         int x = UIHelper.GetScreenX(Coord.ColumnIndex);
         int y = UIHelper.GetScreenY(Coord.RowIndex);
 
-        Raylib.DrawRectangle(x, y, Theme.SquareSideLength, Theme.SquareSideLength, Color);
+        Raylib.DrawRectangle(x, y, Settings.SquareSideLength, Settings.SquareSideLength, Color);
     }
 }

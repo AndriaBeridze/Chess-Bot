@@ -1,12 +1,13 @@
 namespace Chess.App;
 
 using Chess.API;
+using Chess.Utility;
 using Raylib_cs;
 using System.Numerics;
 
 class CoordUI() {
-    private static string rowNames = Theme.FromWhitesView ? "87654321" : "12345678";
-    private static string colNames = Theme.FromWhitesView ? "ABCDEFGH" : "HGFEDCBA";
+    private static string rowNames = Settings.FromWhitesView ? "87654321" : "12345678";
+    private static string colNames = Settings.FromWhitesView ? "ABCDEFGH" : "HGFEDCBA";
 
     private static int offset = 5;
     private static int fontSize = 28; // Change this if you want to adjust the font size
@@ -14,12 +15,12 @@ class CoordUI() {
     private Font font = UIHelper.LoadFont(fontSize);
 
     public void Render() {
-        rowNames = Theme.FromWhitesView ? "87654321" : "12345678";
-        colNames = Theme.FromWhitesView ? "ABCDEFGH" : "HGFEDCBA";
+        rowNames = Settings.FromWhitesView ? "87654321" : "12345678";
+        colNames = Settings.FromWhitesView ? "ABCDEFGH" : "HGFEDCBA";
         
         for (int i = 0; i < 8; i++) {
             // Find the i-th square in the bottommost row from the rendering perspective and get its screen coordinates
-            Coord coord = new Coord(Theme.FromWhitesView ? -1 : 8, Theme.FromWhitesView ? i + 1 : 6 - i);
+            Coord coord = new Coord(Settings.FromWhitesView ? -1 : 8, Settings.FromWhitesView ? i + 1 : 6 - i);
             int x = UIHelper.GetScreenX(coord);
             int y = UIHelper.GetScreenY(coord);
 
@@ -31,7 +32,7 @@ class CoordUI() {
         }
         for (int i = 0; i < 8; i++) {
             // Find the i-th square in the rightmost column from the rendering perspective and get its screen coordinates
-            Coord coord = new Coord(Theme.FromWhitesView ? 7 - i : i, Theme.FromWhitesView ? 0 : 7);
+            Coord coord = new Coord(Settings.FromWhitesView ? 7 - i : i, Settings.FromWhitesView ? 0 : 7);
             int x = UIHelper.GetScreenX(coord);
             int y = UIHelper.GetScreenY(coord);
 

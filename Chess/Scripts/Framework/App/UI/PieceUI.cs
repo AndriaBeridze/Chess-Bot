@@ -1,6 +1,7 @@
 namespace Chess.App;
 
 using Chess.API;
+using Chess.Utility;
 using Raylib_cs;
 using System.Numerics;
 
@@ -30,7 +31,7 @@ class PieceUI {
         Raylib.DrawTexturePro(
             texture,
             new Rectangle(0, 0, texture.Width, texture.Height),
-            new Rectangle(X, Y, Theme.SquareSideLength, Theme.SquareSideLength),
+            new Rectangle(X, Y, Settings.SquareSideLength, Settings.SquareSideLength),
             new Vector2(0, 0),
             0,
             Color.White

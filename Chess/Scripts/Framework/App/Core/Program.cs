@@ -1,12 +1,12 @@
 ﻿namespace Chess.App;
 
-using Chess.API;
+using Chess.Utility;
 using Raylib_cs;
 
 class Program {
     static void Main(string[] args) {
         Raylib.SetTraceLogLevel(TraceLogLevel.None);
-        Raylib.InitWindow(Theme.ScreenWidth, Theme.ScreenHeight, "Chess by Andria Beridze");
+        Raylib.InitWindow(Settings.ScreenWidth, Settings.ScreenHeight, "Chess by Andria Beridze");
         Raylib.SetTargetFPS(60);
         Raylib.InitAudioDevice();
 

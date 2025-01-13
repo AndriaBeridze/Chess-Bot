@@ -1,9 +1,9 @@
 namespace Chess.App;
 
-using System.ComponentModel;
-using System.Numerics;
 using Chess.API;
+using Chess.Utility;
 using Raylib_cs;
+using System.Numerics;
 
 class Buttons {
     private Rectangle buttonOneBounds;
@@ -29,8 +29,8 @@ class Buttons {
     private Font font = UIHelper.LoadFont(fontSize);
 
     public Buttons() {
-        int posX = (Theme.ScreenWidth / 2 - 4 * Theme.SquareSideLength - Theme.BorderSize) / 2 - width / 2;
-        int posY = Theme.ScreenHeight / 2 + 4 * Theme.SquareSideLength - height;
+        int posX = (Settings.ScreenWidth / 2 - 4 * Settings.SquareSideLength - Settings.BorderSize) / 2 - width / 2;
+        int posY = Settings.ScreenHeight / 2 + 4 * Settings.SquareSideLength - height;
         Vector2 textSize = Raylib.MeasureTextEx(font, buttonOneText, fontSize, 0);
 
         buttonOneTextPosition = new Vector2(posX + width / 2 - textSize.X / 2, posY + height / 2 - textSize.Y / 2);

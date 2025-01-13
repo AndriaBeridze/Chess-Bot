@@ -1,6 +1,7 @@
 namespace Chess.App;
 
 using Chess.API;
+using Chess.Utility;
 using Raylib_cs;
 
 class BoardUI {
@@ -9,9 +10,9 @@ class BoardUI {
     private Move lastMove = Move.NullMove; // For highlighting the last move
 
     public BoardUI() {
-        int deskX = UIHelper.GetScreenX(Theme.FromWhitesView ? 0 : 7) - Theme.BorderSize;
-        int deskY = UIHelper.GetScreenY(Theme.FromWhitesView ? 7 : 0) - Theme.BorderSize;
-        int deskSideLength = 8 * Theme.SquareSideLength + 2 * Theme.BorderSize;
+        int deskX = UIHelper.GetScreenX(Settings.FromWhitesView ? 0 : 7) - Settings.BorderSize;
+        int deskY = UIHelper.GetScreenY(Settings.FromWhitesView ? 7 : 0) - Settings.BorderSize;
+        int deskSideLength = 8 * Settings.SquareSideLength + 2 * Settings.BorderSize;
 
         desk = new Rectangle(deskX, deskY, deskSideLength, deskSideLength);
 

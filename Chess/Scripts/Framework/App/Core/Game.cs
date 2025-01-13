@@ -1,10 +1,10 @@
 namespace Chess.App;
 
-using Raylib_cs;
 using Chess.API;
 using Chess.ChessEngine;
 using Chess.Bot;
-using System.Security.Cryptography.X509Certificates;
+using Chess.Utility;
+using Raylib_cs;
 
 class Game {
     private Player whitePlayer;
@@ -38,10 +38,10 @@ class Game {
         this.blackPlayer = blackPlayer;
 
         // Setting the view of the board, usually from the human player's perspective
-        Theme.FromWhitesView = fromWhitesView;
+        Settings.FromWhitesView = fromWhitesView;
 
-        whiteTimerUI = new TimerUI(new Timer(Theme.TimeLimit), !fromWhitesView);
-        blackTimerUI = new TimerUI(new Timer(Theme.TimeLimit), fromWhitesView);
+        whiteTimerUI = new TimerUI(new Timer(Settings.TimeLimit), !fromWhitesView);
+        blackTimerUI = new TimerUI(new Timer(Settings.TimeLimit), fromWhitesView);
 
         board = new Board(fen);
 
@@ -154,23 +154,23 @@ class Game {
             case 0: // Play as White
                 whitePlayer = new HumanPlayer(true);
                 blackPlayer = new BotPlayer(false);
-                Theme.FromWhitesView = true;
+                Settings.FromWhitesView = true;
                 break;
             case 1: // Play as Black
                 whitePlayer = new BotPlayer(true);
                 blackPlayer = new HumanPlayer(false);
-                Theme.FromWhitesView = false;
+                Settings.FromWhitesView = false;
                 break;
             case 2: // AI vs AI
                 whitePlayer = new BotPlayer(true);
                 blackPlayer = new BotPlayer(false);
-                Theme.FromWhitesView = true;
+                Settings.FromWhitesView = true;
                 break;
         }
 
         // Resetting the game
-        whiteTimerUI = new TimerUI(new Timer(Theme.TimeLimit), !Theme.FromWhitesView);
-        blackTimerUI = new TimerUI(new Timer(Theme.TimeLimit), Theme.FromWhitesView);
+        whiteTimerUI = new TimerUI(new Timer(Settings.TimeLimit), !Settings.FromWhitesView);
+        blackTimerUI = new TimerUI(new Timer(Settings.TimeLimit), Settings.FromWhitesView);
 
         board = new Board("");
 

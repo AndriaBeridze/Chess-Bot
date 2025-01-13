@@ -1,5 +1,6 @@
 namespace Chess.API;
 
+using Chess.Utility;
 using Raylib_cs;
 using System.Numerics;
 
@@ -25,8 +26,8 @@ public class GameStatusUI {
 
     public void Render() { 
         Vector2 textSize = Raylib.MeasureTextEx(font, this.text, fontSize, 1);
-        int x = (Theme.ScreenWidth / 2 - 4 * Theme.SquareSideLength - Theme.BorderSize) / 2 - (int) textSize.X / 2;
-        int y = Theme.ScreenHeight / 2 - fontSize / 2;
+        int x = (Settings.ScreenWidth / 2 - 4 * Settings.SquareSideLength - Settings.BorderSize) / 2 - (int) textSize.X / 2;
+        int y = Settings.ScreenHeight / 2 - fontSize / 2;
 
         Raylib.DrawTextEx(font, this.text, new Vector2(x, y), fontSize, 1, color);
     }

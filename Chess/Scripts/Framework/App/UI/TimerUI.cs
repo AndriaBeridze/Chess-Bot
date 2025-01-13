@@ -1,7 +1,8 @@
 namespace Chess.App;
 
-using Raylib_cs;
 using Chess.API;
+using Chess.Utility;
+using Raylib_cs;
 using System.Numerics;
 
 class TimerUI {
@@ -17,7 +18,7 @@ class TimerUI {
 
     private Font font = UIHelper.LoadFont(fontSize);
 
-    private bool isWhite => isOnTop != Theme.FromWhitesView;
+    private bool isWhite => isOnTop != Settings.FromWhitesView;
 
     public TimerUI(Timer timer, bool isOnTop) {
         this.Timer = timer;
@@ -33,13 +34,13 @@ class TimerUI {
     public void Stop() => Timer.Stop();
 
     public void Render() {
-        int rectX = Theme.ScreenWidth / 2 + 4 * Theme.SquareSideLength - rectWidth;
+        int rectX = Settings.ScreenWidth / 2 + 4 * Settings.SquareSideLength - rectWidth;
         int rectY;
         
-        int spaceBetween = Theme.ScreenHeight / 2 - (Theme.SquareSideLength * 4 + Theme.BorderSize);
+        int spaceBetween = Settings.ScreenHeight / 2 - (Settings.SquareSideLength * 4 + Settings.BorderSize);
 
         if (isOnTop) rectY = spaceBetween - offset - fontSize + 6;
-        else rectY = spaceBetween + Theme.SquareSideLength * 8 + Theme.BorderSize * 2 + offset ;
+        else rectY = spaceBetween + Settings.SquareSideLength * 8 + Settings.BorderSize * 2 + offset ;
 
         Color rectColor;
         if (Timer.IsRunning) rectColor = isWhite ? Theme.TimerColorLightActive : Theme.TimerColorDarkActive;
