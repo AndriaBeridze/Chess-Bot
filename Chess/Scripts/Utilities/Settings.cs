@@ -12,5 +12,5 @@ class Settings {
     public static int BorderSize = 20;
 
     // Timer
-    public static int TimeLimit = (int) (10.0f * 60 * 1000000); // 10 minutes in microseconds (for better precision)
+    public static float TimeLimit = 10f * 60; // 10 minutes in seconds
 }

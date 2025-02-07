@@ -1,4 +1,4 @@
-# ♟️ Chess Bot 1.1
+# ♟️ Chess Bot 1.2
 
 A simple chess program written in C# using the .NET framework. 
 

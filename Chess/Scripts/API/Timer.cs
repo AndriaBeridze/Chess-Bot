@@ -4,16 +4,16 @@ using Chess.App;
 using Raylib_cs;
 
 class Timer {
-    public int Time;
+    public double Time;
     public bool IsRunning = true;
     private DateTime prevUpdate = DateTime.Now;
 
-    public Timer(int time) {
+    public Timer(double time) {
         Time = time;
     }
 
     public void Update() {
-        if(IsRunning) Time -= (int) (DateTime.Now - prevUpdate).TotalMicroseconds;
+        if(IsRunning) Time -= (DateTime.Now - prevUpdate).TotalSeconds;
         if (Time < 0) {
             Time = 0;
             IsRunning = false;

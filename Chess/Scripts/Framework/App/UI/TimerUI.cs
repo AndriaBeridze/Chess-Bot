@@ -51,10 +51,11 @@ class TimerUI {
         string text;
         // If the time is less than 1 minute, display it in seconds.deciseconds
         // Otherwise, display it in minutes:seconds
-        if (Timer.Time < 60000000) {
-            text = $"{ Timer.Time / 1000000:D2}.{ Timer.Time % 1000000 / 100000 }";
+        int deciseconds = (int) (Timer.Time * 10);
+        if (deciseconds < 600) {
+            text = $"{ deciseconds / 10:D2}.{ deciseconds % 10 }";
         } else {
-            text = $"{ Timer.Time / 60000000:D2}:{ Timer.Time % 60000000 / 1000000:D2}";
+            text = $"{ deciseconds / 600:D2}:{ deciseconds % 600 / 10:D2}";
         }
         
         Vector2 textSize = Raylib.MeasureTextEx(font, text, fontSize, 1);
