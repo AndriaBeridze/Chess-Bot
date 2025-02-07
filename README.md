@@ -20,17 +20,18 @@ A simple chess program written in C# using the .NET framework.
 
 ## How to Open the Game
 
-1. **Clone the Repository**  
+1. **Requirements** 
+
+    * **Visual Studio Code** (Only needed if you want to change settings).
+    * **.NET SDK** installed on your machine.
+
+2. **Clone the Repository**  
    
    Clone the repository to your local machine by running following command:  
 
    ```bash
    git clone https://github.com/AndriaBeridze/Chess-Bot.git
    ```
-2. **Requirements** 
-
-    * **Visual Studio Code** (Only needed if you want to change settings).
-    * **.NET SDK** installed on your machine.
 
 3. **Navigate to the Main Folder**
 
