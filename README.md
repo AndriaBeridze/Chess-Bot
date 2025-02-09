@@ -2,7 +2,7 @@
 
 A simple chess program written in C# using the .NET framework. 
 
-![alt text](<Chess/Resources/Media/Demo.gif>)
+![alt text](<Chess/Resources/Media/Screenshot.png>)
 
 ## Strengths and Limitations
 
