@@ -8,15 +8,15 @@ A simple chess program written in C# using the .NET framework
 
 ### ✅ Strengths
 
-* Generates moves fairly fast.
-* Smooth gameplay experience with real-time move validation.
-* Handles most tactical and positional scenarios effectively.
+* Generates moves fairly fast
+* Smooth gameplay experience with real-time move validation
+* Handles most tactical and positional scenarios effectively
 
 ### ❌ Limitations
 
-* Limited to local play; no online or multiplayer support yet.
-* Struggles in complex endgames with deeper search requirements.
-* Best suited for intermediate-level players; advanced engines outperform it.
+* Limited to local play; no online or multiplayer support yet
+* Struggles in complex endgames with deeper search requirements
+* Best suited for intermediate-level players; advanced engines outperform it
 
 ## How to Open the Game
 
