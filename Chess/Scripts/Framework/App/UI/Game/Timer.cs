@@ -1,11 +1,10 @@
 namespace Chess.UI;
 
-using Chess.API;
 using Chess.Utility;
 using Raylib_cs;
 using System.Numerics;
 
-class TimerUI {
+class Timer {
     private double time;
     private bool isRunning = true;
     private DateTime prevUpdate = DateTime.Now;
@@ -20,7 +19,7 @@ class TimerUI {
 
     public double Time => time;
 
-    public TimerUI(double initialTime, bool isOnTop) {
+    public Timer(double initialTime, bool isOnTop) {
         time = initialTime;
         this.isOnTop = isOnTop;
     }

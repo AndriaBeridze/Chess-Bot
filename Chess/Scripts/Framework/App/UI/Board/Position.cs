@@ -28,7 +28,7 @@ class Position {
         }
     }
 
-    public void Update(ChessEngine.Board board, Board boardUI, bool highlightMoves, ref TimerUI whiteTimerUI, ref TimerUI blackTimerUI) {
+    public void Update(ChessEngine.Board board, Board boardUI, bool highlightMoves, ref Timer whiteTimerUI, ref Timer blackTimerUI) {
         Move move = Move.NullMove;
         
         if (Raylib.IsMouseButtonPressed(MouseButton.Left)) {
@@ -179,7 +179,7 @@ class Position {
     }
 
     public void Animate(int index, Move move) {
-        int frames = 25;
+        int frames = 20;
         double startX = UIHelper.GetScreenX(ChessEngine.BoardHelper.ColumnIndex(move.Source));
         double startY = UIHelper.GetScreenY(ChessEngine.BoardHelper.RowIndex(move.Source));
         double endX = UIHelper.GetScreenX(ChessEngine.BoardHelper.ColumnIndex(move.Target));

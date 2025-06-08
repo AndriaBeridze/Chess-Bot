@@ -12,14 +12,14 @@ class Game {
 
     private ChessEngine.Board chessBoard;
 
-    private TimerUI whiteTimerUI;
-    private TimerUI blackTimerUI;
+    private Timer whiteTimer;
+    private Timer blackTimer;
 
-    private Board boardUI;
-    private Coords coordUI;
-    private Position positionUI;
-    private Player playerUI;
-    private Status gameStatusUI;
+    private Board board;
+    private Coords coord;
+    private Position position;
+    private Player player;
+    private Status gameStatus;
     private Menu buttons;
 
     private OpeningBook openingBook;
@@ -33,77 +33,80 @@ class Game {
     private Task BotTask;
     private Task AnimationTask;
 
+    private CancellationTokenSource botTokenSource;
+    private CancellationTokenSource animationTokenSource;
+
     public Game(App.Player whitePlayer, App.Player blackPlayer, string fen, bool fromWhitesView) {
         this.whitePlayer = whitePlayer;
         this.blackPlayer = blackPlayer;
 
-        // Setting the view of the board, usually from the human player's perspective
         Settings.FromWhitesView = fromWhitesView;
 
-        whiteTimerUI = new TimerUI(Settings.TimeLimit, !fromWhitesView);
-        blackTimerUI = new TimerUI(Settings.TimeLimit, fromWhitesView);
+        whiteTimer = new Timer(Settings.TimeLimit, !fromWhitesView);
+        blackTimer = new Timer(Settings.TimeLimit, fromWhitesView);
 
         chessBoard = new ChessEngine.Board(fen);
 
-        if (chessBoard.IsWhiteTurn) blackTimerUI.Stop();
-        else whiteTimerUI.Stop();
+        if (chessBoard.IsWhiteTurn) blackTimer.Stop();
+        else whiteTimer.Stop();
 
-        boardUI = new Board();
-        coordUI = new Coords();
-        positionUI = new Position(chessBoard);
-        playerUI = new Player(whitePlayer.PlayerType, blackPlayer.PlayerType);
-        gameStatusUI = new Status("");
+        board = new Board();
+        coord = new Coords();
+        position = new Position(chessBoard);
+        player = new Player(whitePlayer.PlayerType, blackPlayer.PlayerType);
+        gameStatus = new Status("");
         buttons = new Menu();
 
         openingBook = new OpeningBook();
 
         currentPlayer = chessBoard.IsWhiteTurn ? whitePlayer : blackPlayer;
 
-        BotTask = Task.Run(() => { });
-        AnimationTask = Task.Run(() => { });
+        botTokenSource = new CancellationTokenSource();
+        animationTokenSource = new CancellationTokenSource();
+
+        BotTask = Task.CompletedTask;
+        AnimationTask = Task.CompletedTask;
     }
 
     public void Update() {
-        // There was a bug with checking the status of the game when the bot was thinking, so it is not checked during the bot's turn
-        if (!statusCheck) goto Update; 
+        if (!statusCheck) goto Update;
 
-        // If the game has ended, stop tendering and display the game status
-        string status = Arbiter.Status(chessBoard, whiteTimerUI.Time, blackTimerUI.Time);
+        string status = Arbiter.Status(chessBoard, whiteTimer.Time, blackTimer.Time);
         if (status != "") {
             Color color = Color.White;
 
             if (status == "Checkmate") color = Theme.CheckmateTextColor;
             if (status == "Stalemate") color = Theme.StalemateTextColor;
             if (status == "Draw") color = Theme.DrawTextColor;
-            
-            gameStatusUI = new Status(status, color);
+
+            gameStatus = new Status(status, color);
             gameOver = true;
 
-            goto HandleUI;
+            goto Handle;
         }
 
         Update:
 
-        // Displaying bot moves
         currentPlayer = chessBoard.IsWhiteTurn ? whitePlayer : blackPlayer;
         if (currentPlayer.IsBot && statusCheck) {
             statusCheck = false;
-            // Running the bot move in a separate thread, so the game doesn't freeze, and the user can interact with the UI
-            BotTask = Task.Run(GetBotMove);
+            botTokenSource = new CancellationTokenSource();
+            var token = botTokenSource.Token;
+            BotTask = Task.Run(() => GetBotMove(token), token);
         }
 
-        HandleUI:
+        Handle:
 
         if (gameOver) {
-            whiteTimerUI.Stop();
-            blackTimerUI.Stop();
+            whiteTimer.Stop();
+            blackTimer.Stop();
         }
 
-        positionUI.Update(chessBoard, boardUI, highlightMoves : statusCheck && !gameOver, ref whiteTimerUI, ref blackTimerUI);
-        positionUI.AnimatePromotion(chessBoard); // There was an issue with changing the piece UI during a thread sleep, so it is checked separately
-        
-        whiteTimerUI.Update();
-        blackTimerUI.Update();
+        position.Update(chessBoard, board, highlightMoves: statusCheck && !gameOver, ref whiteTimer, ref blackTimer);
+        position.AnimatePromotion(chessBoard);
+
+        whiteTimer.Update();
+        blackTimer.Update();
 
         int buttonUpdate = buttons.Update();
         if (buttonUpdate != -1) {
@@ -111,82 +114,102 @@ class Game {
         }
     }
 
-    private void GetBotMove() {
-        Move move = openingBook.GetMove(chessBoard.MovesMade); // Check if there is a matching opening move
-        if (move.IsNull) move = currentPlayer.Search(chessBoard); // If not, search for a move
+    private void GetBotMove(CancellationToken token) {
+        try {
+            if (token.IsCancellationRequested) return;
 
-        // Piece animation is also done in a separate thread
-        // There is no need to do this, since animation is very short and doesn't affect the UI interface
-        // But it is done to keep the code consistent
-        AnimationTask = Task.Run(() => {
-            AnimateMove(move);
-        });
+            Move move = openingBook.GetMove(chessBoard.MovesMade);
+            if (move.IsNull) move = currentPlayer.Search(chessBoard); // You can pass the token here if supported
+
+            animationTokenSource = new CancellationTokenSource();
+            var animToken = animationTokenSource.Token;
+            AnimationTask = Task.Run(() => AnimateMove(move, animToken), animToken);
+        } catch (OperationCanceledException) {
+            // Canceled
+        }
     }
 
-    private void AnimateMove(Move move) {
-        if (Arbiter.Status(chessBoard, whiteTimerUI.Time, blackTimerUI.Time) != "" || gameChanged) {
+    private void AnimateMove(Move move, CancellationToken token) {
+        if (token.IsCancellationRequested) return;
+
+        if (Arbiter.Status(chessBoard, whiteTimer.Time, blackTimer.Time) != "" || gameChanged) {
             statusCheck = true;
             gameChanged = false;
             return;
         }
-        
-        positionUI.AnimateMove(move, chessBoard);
-        chessBoard.MakeMove(move, record : true); // Record the move since it is being recorded in the UI
-        boardUI.SetLastMove(move);
 
-        Thread.Sleep(100); // Short delay to make animations more pleasant
+        position.AnimateMove(move, chessBoard);
+        if (token.IsCancellationRequested) return;
+
+        chessBoard.MakeMove(move, record: true);
+        board.SetLastMove(move);
+
+        Thread.Sleep(100);
+        if (token.IsCancellationRequested) return;
+
         if (chessBoard.IsWhiteTurn) {
-            whiteTimerUI.Start();
-            blackTimerUI.Stop();
+            whiteTimer.Start();
+            blackTimer.Stop();
         } else {
-            blackTimerUI.Start();
-            whiteTimerUI.Stop();
+            blackTimer.Start();
+            whiteTimer.Stop();
         }
 
         statusCheck = true;
     }
 
     public void HandleButtonPress(int buttonUpdate) {
-        if (!BotTask.IsCompleted) BotTask.Wait();
-        if (!AnimationTask.IsCompleted) AnimationTask.Wait();
-        
+        // Cancel any running bot/animation tasks
+        botTokenSource.Cancel();
+        animationTokenSource.Cancel();
+
+        try {
+            Task.WaitAll(new[] { BotTask, AnimationTask }, 200); // Wait briefly (optional)
+        } catch (AggregateException) {
+            // Ignore task cancellations
+        }
+
+        // Reinitialize players based on button selection
         switch (buttonUpdate) {
-            case 0: // Play as White
+            case 0:
                 whitePlayer = new App.HumanPlayer(true);
                 blackPlayer = new App.BotPlayer(false);
                 Settings.FromWhitesView = true;
                 break;
-            case 1: // Play as Black
+            case 1:
                 whitePlayer = new App.BotPlayer(true);
                 blackPlayer = new App.HumanPlayer(false);
                 Settings.FromWhitesView = false;
                 break;
-            case 2: // AI vs AI
+            case 2:
                 whitePlayer = new App.BotPlayer(true);
                 blackPlayer = new App.BotPlayer(false);
                 Settings.FromWhitesView = true;
                 break;
         }
 
-        // Resetting the game
-        whiteTimerUI = new TimerUI(Settings.TimeLimit, !Settings.FromWhitesView);
-        blackTimerUI = new TimerUI(Settings.TimeLimit, Settings.FromWhitesView);
+        // Reset game state
+        whiteTimer = new Timer(Settings.TimeLimit, !Settings.FromWhitesView);
+        blackTimer = new Timer(Settings.TimeLimit, Settings.FromWhitesView);
 
         chessBoard = new ChessEngine.Board("");
 
-        if (chessBoard.IsWhiteTurn) blackTimerUI.Stop();
-        else whiteTimerUI.Stop();
+        if (chessBoard.IsWhiteTurn) blackTimer.Stop();
+        else whiteTimer.Stop();
 
-        boardUI = new Board();
-        coordUI = new Coords();
-        positionUI = new Position(chessBoard);
-        playerUI = new Player(whitePlayer.PlayerType, blackPlayer.PlayerType);
-        gameStatusUI = new Status("");
+        board = new Board();
+        coord = new Coords();
+        position = new Position(chessBoard);
+        player = new Player(whitePlayer.PlayerType, blackPlayer.PlayerType);
+        gameStatus = new Status("");
         buttons = new Menu();
 
         openingBook = new OpeningBook();
 
         currentPlayer = chessBoard.IsWhiteTurn ? whitePlayer : blackPlayer;
+
+        botTokenSource = new CancellationTokenSource();
+        animationTokenSource = new CancellationTokenSource();
 
         statusCheck = true;
         gameChanged = true;
@@ -195,12 +218,12 @@ class Game {
 
     public void Render() {
         buttons.Render();
-        boardUI.Render();
-        coordUI.Render();
-        positionUI.Render();
-        playerUI.Render();
-        gameStatusUI.Render();
-        whiteTimerUI.Render();
-        blackTimerUI.Render();
+        board.Render();
+        coord.Render();
+        position.Render();
+        player.Render();
+        gameStatus.Render();
+        whiteTimer.Render();
+        blackTimer.Render();
     }
 }
