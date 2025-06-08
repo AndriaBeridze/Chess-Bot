@@ -1,4 +1,4 @@
-namespace Chess.App;
+namespace Chess.Core;
 
 using Chess.API;
 using Chess.ChessEngine;
@@ -66,12 +66,12 @@ class Arbiter {
         return true;
     }
 
-    public static string Status(Board board, Timer? whiteTimer = null, Timer? blackTimer = null) {
+    public static string Status(Board board, double? whiteTime = null, double? blackTime = null) {
         if (IsCheckmate(board)) return "Checkmate";
         if (IsStalemate(board)) return "Stalemate";
         if (IsDraw(board)) return "Draw";
-        if (whiteTimer != null && whiteTimer.Time == 0) return "Time Out";
-        if (blackTimer != null && blackTimer.Time == 0) return "Time Out";
+        if (whiteTime != null && whiteTime == 0) return "Time Out";
+        if (blackTime != null && blackTime == 0) return "Time Out";
 
         return "";
     }

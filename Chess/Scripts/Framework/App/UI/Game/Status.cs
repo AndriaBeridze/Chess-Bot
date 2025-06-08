@@ -1,10 +1,10 @@
-namespace Chess.API;
+namespace Chess.UI;
 
 using Chess.Utility;
 using Raylib_cs;
 using System.Numerics;
 
-public class GameStatusUI {
+public class Status {
     // This is to display the game status on the screen
     // Possible values are "Checkmate", "Stalemate", "Draw", "Time Out"
     private string text;
@@ -13,12 +13,12 @@ public class GameStatusUI {
     private Font font;
     private const int fontSize = 60;
 
-    public GameStatusUI(string text) {
+    public Status(string text) {
         this.text = text;
         this.font = UIHelper.LoadFont(fontSize);
     }
 
-    public GameStatusUI(string text, Color color) {
+    public Status(string text, Color color) {
         this.text = text;
         this.color = color;
         this.font = UIHelper.LoadFont(fontSize);

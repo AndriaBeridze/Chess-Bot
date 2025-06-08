@@ -1,17 +1,17 @@
-namespace Chess.App;
+namespace Chess.UI;
 
 using Chess.API;
 using Chess.Utility;
 using Raylib_cs;
 using System.Numerics;
 
-class PieceUI {
+class Piece {
     public Coord Coord;
     public float X, Y;
     private string imgURL = "Chess/Resources/Sprites/"; // Every piece image is stored in this directory
     private Texture2D texture; // Preloaded texture to avoid loading it every frame
 
-    public PieceUI(Piece piece, Coord coord) {
+    public Piece(API.Piece piece, Coord coord) {
         Coord = coord;
         imgURL += UIHelper.GetImageNameByPiece(piece);
         X = UIHelper.GetScreenX(coord);

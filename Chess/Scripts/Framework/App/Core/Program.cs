@@ -1,5 +1,6 @@
-﻿namespace Chess.App;
+﻿namespace Chess.Core;
 
+using Chess.App;
 using Chess.Utility;
 using Raylib_cs;
 

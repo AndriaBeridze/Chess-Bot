@@ -1,41 +1,41 @@
-namespace Chess.App;
+namespace Chess.UI;
 
 using Chess.API;
-using Chess.ChessEngine;
+using Chess.Core;
 using Chess.Utility;
 using System.Numerics;
 using Raylib_cs;
 
-class PositionUI {
-    private List<PieceUI> pieces;
+class Position {
+    private List<Piece> pieces;
     private int draggedPiece = -1; // To keep track of the piece during dragging
     private int animatedPiece = -1; // To keep track of the piece during animation
 
     private int promotionLastChecked = -1;
 
-    public PositionUI(Board board) {
-        pieces = new List<PieceUI>();
+    public Position(ChessEngine.Board board) {
+        pieces = new List<Piece>();
         SetUpPosition(board);
     }
 
     // Creating new pieces to render them on the screen
-    public void SetUpPosition(Board board) {
-        pieces = new List<PieceUI>();
+    public void SetUpPosition(ChessEngine.Board board) {
+        pieces = new List<Piece>();
         for (int i = 0; i < 64; i++) {
             if (!board.Square[i].IsNone) {
-                pieces.Add(new PieceUI(board.Square[i], new Coord(i)));
+                pieces.Add(new Piece(board.Square[i], new Coord(i)));
             }
         }
     }
 
-    public void Update(Board board, BoardUI boardUI, bool highlightMoves, ref TimerUI whiteTimerUI, ref TimerUI blackTimerUI) {
+    public void Update(ChessEngine.Board board, Board boardUI, bool highlightMoves, ref TimerUI whiteTimerUI, ref TimerUI blackTimerUI) {
         Move move = Move.NullMove;
         
         if (Raylib.IsMouseButtonPressed(MouseButton.Left)) {
             int x = Raylib.GetMouseX();
             int y = Raylib.GetMouseY();
 
-            foreach (PieceUI piece in pieces) {
+            foreach (Piece piece in pieces) {
                 // If mouse is not hovering on a piece, ignore it
                 Rectangle rect = new Rectangle(piece.X, piece.Y, Settings.SquareSideLength, Settings.SquareSideLength);
                 if (!Raylib.CheckCollisionPointRec(new Vector2(x, y), rect)) continue;
@@ -44,7 +44,7 @@ class PositionUI {
 
                 // If the piece is of the current player, highlight its valid moves
                 if (board.Square[piece.Coord.SquareIndex].IsWhite == board.IsWhiteTurn && highlightMoves) {
-                    boardUI.HighlightValidMoves(MoveGenerator.GenerateMoves(board, piece.Coord.SquareIndex));
+                    boardUI.HighlightValidMoves(ChessEngine.MoveGenerator.GenerateMoves(board, piece.Coord.SquareIndex));
                     boardUI.HighlightSquare(piece.Coord.SquareIndex);
                 }
 
@@ -87,7 +87,7 @@ class PositionUI {
             }
 
             if (!placedOnValidSquare && draggedPiece != -1) {
-                Sounds.Play("illegal");
+                SoundManager.Play("Illegal");
                 pieces[draggedPiece].ResetPosition(); // If it is illegal to move on that square, reset the piece to its original position
             }
 
@@ -111,7 +111,7 @@ class PositionUI {
                 move = new Move(move.Source, move.Target, Move.QueenPromotion);
                 
                 int index = pieces.FindIndex(p => p.Coord.SquareIndex == move.Target);
-                pieces[index] = new PieceUI(new Piece(Piece.Queen, board.IsWhiteTurn ? Piece.White : Piece.Black), new Coord(move.Target));
+                pieces[index] = new Piece(new API.Piece(API.Piece.Queen, board.IsWhiteTurn ? API.Piece.White : API.Piece.Black), new Coord(move.Target));
             }
             // En passant
             if (board.Square[move.Source].IsPawn && Math.Abs(move.Source - move.Target) % 8 != 0 && board.Square[move.Target].IsNone) {
@@ -135,7 +135,7 @@ class PositionUI {
         }
     }
 
-    public void AnimateMove(Move move, Board board) {
+    public void AnimateMove(Move move, ChessEngine.Board board) {
         // If any piece is dragged, reset its position
         if (draggedPiece != -1) pieces[draggedPiece].ResetPosition();
         draggedPiece = -1;
@@ -180,10 +180,10 @@ class PositionUI {
 
     public void Animate(int index, Move move) {
         int frames = 25;
-        double startX = UIHelper.GetScreenX(BoardHelper.ColumnIndex(move.Source));
-        double startY = UIHelper.GetScreenY(BoardHelper.RowIndex(move.Source));
-        double endX = UIHelper.GetScreenX(BoardHelper.ColumnIndex(move.Target));
-        double endY = UIHelper.GetScreenY(BoardHelper.RowIndex(move.Target));
+        double startX = UIHelper.GetScreenX(ChessEngine.BoardHelper.ColumnIndex(move.Source));
+        double startY = UIHelper.GetScreenY(ChessEngine.BoardHelper.RowIndex(move.Source));
+        double endX = UIHelper.GetScreenX(ChessEngine.BoardHelper.ColumnIndex(move.Target));
+        double endY = UIHelper.GetScreenY(ChessEngine.BoardHelper.RowIndex(move.Target));
         double dx = (endX - startX) / frames;
         double dy = (endY - startY) / frames;
 
@@ -199,42 +199,43 @@ class PositionUI {
         animatedPiece = -1;
     }
 
-    private void PlaySound(Move move, Board board) {
+    private void PlaySound(Move move, ChessEngine.Board board) {
         bool soundPlayed = false;
         
         board.MakeMove(move);
-        if (Arbiter.Status(board) != "") { soundPlayed = true; Sounds.Play("game-over"); }
-        else if (MoveHelper.IsInCheck(board, true) || MoveHelper.IsInCheck(board, false)) { soundPlayed = true; Sounds.Play("check"); }
+        if (Arbiter.Status(board) != "") { soundPlayed = true; SoundManager.Play("Game-Over"); }
+        else if (ChessEngine.MoveHelper.IsInCheck(board, true) || ChessEngine.MoveHelper.IsInCheck(board, false)) { soundPlayed = true; SoundManager.Play("Check"); }
         board.UnmakeMove(move);
         
         if (soundPlayed) return;
 
-        if (board.Square[move.Target].Type != Piece.None) Sounds.Play("capture");
-        else if (move.IsPromotion) Sounds.Play("promotion");
-        else if (move.IsCastling) Sounds.Play("castle");
-        else Sounds.Play("move");
+        if (board.Square[move.Target].Type != API.Piece.None) SoundManager.Play("Capture");
+        else if (move.IsPromotion) SoundManager.Play("Promotion");
+        else if (move.IsCastling) SoundManager.Play("Castle");
+        else SoundManager.Play("Move");
     }
 
     // Special case that needs to be handled separately due to the bug before
-    public void AnimatePromotion(Board board) {
+    public void AnimatePromotion(ChessEngine.Board board) {
         if (board.MovesMade.Count == 0) return;
         if (!board.MovesMade[board.MovesMade.Count - 1].IsPromotion) return;
         if (promotionLastChecked == board.MovesMade.Count) return;
 
         Move move = board.MovesMade[board.MovesMade.Count - 1];
-        int color = board.IsWhiteTurn ? Piece.Black : Piece.White;
+        int color = board.IsWhiteTurn ? API.Piece.Black : API.Piece.White;
         int index = pieces.FindIndex(piece => piece.Coord == new Coord(move.Target));
         
         if (index == -1) return;
         promotionLastChecked = board.MovesMade.Count;
 
-        pieces[index] = new PieceUI(new Piece(color, move.PromotingTo), new Coord(move.Target));
+        pieces[index] = new Piece(new API.Piece(color, move.PromotingTo), new Coord(move.Target));
     }
 
     public void Render() {
-        foreach (PieceUI piece in pieces) {
+        foreach (Piece piece in pieces) {
             piece.Render();
         }
+        
         if (draggedPiece != -1) pieces[draggedPiece].Render();
         if (animatedPiece != -1) pieces[animatedPiece].Render();
     }

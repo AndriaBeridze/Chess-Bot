@@ -1,5 +1,6 @@
-namespace Chess.API;
+namespace Chess.UI;
 
+using Chess.API;
 using Chess.Utility;
 using Raylib_cs;
 
@@ -22,7 +23,7 @@ class UIHelper {
         return Raylib.LoadFontEx(fontPath, fontSize, null, 0);
     }
 
-    public static string GetPieceName(Piece piece) {
+    public static string GetPieceName(API.Piece piece) {
         if (piece.IsKing) return "King";
         if (piece.IsQueen) return "Queen";
         if (piece.IsRook) return "Rook";
@@ -32,12 +33,12 @@ class UIHelper {
         return "";
     }
 
-    public static string GetPieceColor(Piece piece) {
+    public static string GetPieceColor(API.Piece piece) {
         return piece.IsWhite ? "White" : "Black";
     }
 
     // Get an image url corresponding to the piece
-    public static string GetImageNameByPiece(Piece piece) {
-        return GetPieceColor(piece).ToLower() + GetPieceName(piece).ToLower() + ".png";
+    public static string GetImageNameByPiece(API.Piece piece) {
+        return GetPieceColor(piece) + "/" + GetPieceName(piece) + ".png";
     }
 }

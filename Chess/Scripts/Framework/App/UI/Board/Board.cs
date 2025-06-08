@@ -1,24 +1,24 @@
-namespace Chess.App;
+namespace Chess.UI;
 
 using Chess.API;
 using Chess.Utility;
 using Raylib_cs;
 
-class BoardUI {
+class Board {
     private Rectangle desk; // Board frame
-    private SquareUI[] squares;
+    private Square[] squares;
     private Move lastMove = Move.NullMove; // For highlighting the last move
 
-    public BoardUI() {
+    public Board() {
         int deskX = UIHelper.GetScreenX(Settings.FromWhitesView ? 0 : 7) - Settings.BorderSize;
         int deskY = UIHelper.GetScreenY(Settings.FromWhitesView ? 7 : 0) - Settings.BorderSize;
         int deskSideLength = 8 * Settings.SquareSideLength + 2 * Settings.BorderSize;
 
         desk = new Rectangle(deskX, deskY, deskSideLength, deskSideLength);
 
-        squares = new SquareUI[64];
+        squares = new Square[64];
         for (int i = 0; i < 64; i++) {
-            squares[i] = new SquareUI(new Coord(i));
+            squares[i] = new Square(new Coord(i));
         }
         
         lastMove = Move.NullMove; // When the game is started, there is no last move
@@ -53,7 +53,7 @@ class BoardUI {
     // Clearing the board from legal move and check highlights
     public void Clear() {
         for (int i = 0; i < 64; i++) {
-            squares[i] = new SquareUI(new Coord(i));
+            squares[i] = new Square(new Coord(i));
         }
         if (!lastMove.IsNull) {
             HighlightSquare(lastMove.Source);

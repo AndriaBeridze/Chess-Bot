@@ -1,15 +1,15 @@
-namespace Chess.App;
+namespace Chess.UI;
 
 using Chess.API;
 using Chess.Utility;
 using Raylib_cs;
 using System.Numerics;
 
-class PlayerUI {
+class Player {
     private string whitePlayer;
     private string blackPlayer;
 
-    public PlayerUI(string whitePlayer, string blackPlayer) {
+    public Player(string whitePlayer, string blackPlayer) {
         this.whitePlayer = whitePlayer;
         this.blackPlayer = blackPlayer;
     }

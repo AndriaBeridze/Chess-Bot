@@ -1,11 +1,11 @@
-namespace Chess.App;
+namespace Chess.UI;
 
 using Chess.API;
 using Chess.Utility;
 using Raylib_cs;
 using System.Numerics;
 
-class CoordUI() {
+class Coords {
     private static string rowNames = Settings.FromWhitesView ? "87654321" : "12345678";
     private static string colNames = Settings.FromWhitesView ? "ABCDEFGH" : "HGFEDCBA";
 

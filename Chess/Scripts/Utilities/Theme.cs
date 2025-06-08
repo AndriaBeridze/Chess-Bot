@@ -30,7 +30,7 @@ class Theme {
 
     // Buttons
     public static Color ButtonColor = new Color(50, 50, 50, 255);
-    public static Color ButtonTextColor = new Color(205, 205, 205, 255);
-    public static Color ButtonHoverColor = new Color(255, 229, 180, 255);
-    public static Color ButtonHoverTextColor = new Color(25, 25, 25, 255);
+    public static Color ButtonTextColor = new Color(185, 185, 185, 255);
+    public static Color ButtonHoverColor = new Color(65, 136, 255, 255);
+    public static Color ButtonHoverTextColor = new Color(255, 255, 255, 255);
 }

@@ -1,21 +1,21 @@
-namespace Chess.App;
+namespace Chess.UI;
 
 using Chess.API;
 using Chess.Utility;
 using Raylib_cs;
 
-class SquareUI {
+class Square {
     public Coord Coord;
     public Color Color;
 
     // Custom color is set
-    public SquareUI(Coord coord, Color color) {
+    public Square(Coord coord, Color color) {
         this.Coord = coord;
         this.Color = color;
     }
 
     // Default color is set based on the square's position
-    public SquareUI(Coord coord) {
+    public Square(Coord coord) {
         this.Coord = coord;
         Color = coord.IsLightColor ? Theme.LightCol : Theme.DarkCol;
     }
