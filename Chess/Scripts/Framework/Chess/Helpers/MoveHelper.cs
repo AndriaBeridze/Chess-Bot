@@ -17,91 +17,16 @@ class MoveHelper {
     
     // Step 3: Repeat the process for the rook's column.
     public static Bitboard StraightMoves(Board board, int index) {
-        Bitboard moveSet = new Bitboard(0);
-
-        int row = BoardHelper.RowIndex(index);
-        int col = BoardHelper.ColumnIndex(index);
-
-        Bitboard occupied = board.Occupied;
-
-        Bitboard left = ((occupied & Masks.Row[row]) - (BitboardHelper.GetBitAt(index) << 1)) & Masks.Row[row];
-        Bitboard right = (((occupied & Masks.Row[row]).Reverse() - (BitboardHelper.GetBitAt(index).Reverse() << 1)).Reverse()) & Masks.Row[row];
-
-        Bitboard up = ((occupied & Masks.Column[col]) - (BitboardHelper.GetBitAt(index) << 1)) & Masks.Column[col];
-        Bitboard down = (((occupied & Masks.Column[col]).Reverse() - (BitboardHelper.GetBitAt(index).Reverse() << 1)).Reverse()) & Masks.Column[col];
-
-        moveSet |= (left ^ right) & Masks.Row[row];
-        moveSet |= (up ^ down) & Masks.Column[col];
-
-        return moveSet;
+        Bitboard occupied = (Masks.Row[BoardHelper.RowIndex(index)] | Masks.Column[BoardHelper.ColumnIndex(index)]) & board.Occupied ^ BitboardHelper.GetBitAt(index);
+    
+        return Magic.GetSliderAttacks(index, occupied, true);
     }
 
     // Same as the StraightMoves method, but we're now calculating the diagonal moves.
     public static Bitboard DiagonalMoves(Board board, int index) {
-        Bitboard moveSet = new Bitboard(0);
-
-        int row = BoardHelper.RowIndex(index);
-        int col = BoardHelper.ColumnIndex(index);
-
-        Bitboard occupied = board.Occupied;
-
-        int diagonalIndex = row - col + 7;
-        int antiDiagonalIndex = row + col;
-
-        Bitboard topRight = ((occupied & Masks.Diagonal[diagonalIndex]) - (BitboardHelper.GetBitAt(index) << 1)) & Masks.Diagonal[diagonalIndex];
-        Bitboard bottomLeft = (((occupied & Masks.Diagonal[diagonalIndex]).Reverse() - (BitboardHelper.GetBitAt(index).Reverse() << 1)).Reverse()) & Masks.Diagonal[diagonalIndex];
-
-        Bitboard topLeft = ((occupied & Masks.AntiDiagonal[antiDiagonalIndex]) - (BitboardHelper.GetBitAt(index) << 1)) & Masks.AntiDiagonal[antiDiagonalIndex];
-        Bitboard bottomRight = (((occupied & Masks.AntiDiagonal[antiDiagonalIndex]).Reverse() - (BitboardHelper.GetBitAt(index).Reverse() << 1)).Reverse()) & Masks.AntiDiagonal[antiDiagonalIndex];
-
-        moveSet |= (topRight ^ bottomLeft) & Masks.Diagonal[diagonalIndex];
-        moveSet |= (topLeft ^ bottomRight) & Masks.AntiDiagonal[antiDiagonalIndex];
-
-        return moveSet;
-    }
-
-    public static Bitboard KnightMoves(int index) {
-        Bitboard moveSet = Masks.KnightMoves;
-
-        // Knight moves are the same from every square
-        // We can keep one copy of it and shift it to the correct position
-        if (index > 18) {   
-            moveSet <<= index - 18;
-        } else {
-            moveSet >>= 18 - index;
-        }
-
-        // If knight is on the first half of the board, remove all the moves that go to the rightmost two columns
-        // If knight is on the second half of the board, remove all the moves that go to the leftmost two columns
-        if (index % 8 < 4) {
-            moveSet &= ~(Masks.Column[6] | Masks.Column[7]);
-        } else {
-            moveSet &= ~(Masks.Column[0] | Masks.Column[1]);
-        }
-
-        return moveSet;
-    }
-
-    public static Bitboard KingMoves(int index) {
-        Bitboard moveSet = Masks.KingMoves;
-
-        // King moves are the same from every square
-        // We can keep one copy of it and shift it to the correct position
-        if (index > 9) {
-            moveSet <<= index - 9;
-        } else {
-            moveSet >>= 9 - index;
-        }
-
-        // If king is on the first half of the board, remove all the moves that go to the rightmost column
-        // If king is on the second half of the board, remove all the moves that go to the leftmost column
-        if (index % 8 == 0) {
-            moveSet &= ~Masks.Column[7];
-        } else if (index % 8 == 7) {
-            moveSet &= ~Masks.Column[0];
-        }
-
-        return moveSet;
+        Bitboard occupied = (Masks.Diagonal[BoardHelper.DiagonalIndex(index)] | Masks.AntiDiagonal[BoardHelper.AntiDiagonalIndex(index)]) & board.Occupied ^ BitboardHelper.GetBitAt(index);
+    
+        return Magic.GetSliderAttacks(index, occupied, false);
     }
 
     // Key idea: Get all the squares that are attacked by the enemy pieces
@@ -125,7 +50,7 @@ class MoveHelper {
         while (!knights.IsEmpty) {
             int index = knights.FirstBit;
         
-            result |= KnightMoves(index);
+            result |= Masks.KnightAttacks[index];
 
             knights.ClearBit(index);
         }
@@ -155,7 +80,7 @@ class MoveHelper {
         Bitboard kings = board.Type[Piece.King] & board.Color[!color];
         int kingIndex = kings.FirstBit;
 
-        result |= KingMoves(kingIndex);
+        result |= Masks.KingAttacks[kingIndex];
 
         return result;
     }
@@ -213,15 +138,18 @@ class MoveHelper {
 
     // Extract all moves for any other piece
     // All other pieces moves are generated one by one, so considering pins are not necessary
+    // In MoveHelper.cs
     public static List<Move> ExtractMoves(Bitboard bitboard, int index) {
-        List<Move> moves = new List<Move>();
-        while (!bitboard.IsEmpty) {
-            int target = bitboard.FirstBit;
+        List<Move> moves = new List<Move>(bitboard.Count());
+        ulong value = bitboard.Value;
+        
+        while (value != 0) {
+            ulong isolated = value & (ulong)-(long)value;
+            int target = (int) Math.Log2(isolated);
             moves.Add(new Move(index, target));
-            
-            bitboard.ClearBit(target);
+            value ^= isolated;
         }
-
+        
         return moves;
     }
 }

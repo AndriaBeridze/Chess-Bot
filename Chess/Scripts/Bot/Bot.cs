@@ -20,11 +20,16 @@ class Bot {
 
     public static Move Think(Board board) {
         DateTime time = DateTime.Now;
+        int depthSearched = 0;
         for (int i = 1; i <= 100; i++) {
+            depthSearched = i;
             bestMove = Move.NullMove; // Reset the best move for each depth
-            Search(board, i);
-            if ((DateTime.Now - time).TotalSeconds > 1) break; // Limit the thinking time to 1 seconds
+            Search(board, depthSearched); 
+            if ((DateTime.Now - time).TotalSeconds > 2) break; // Limit the thinking time to 1 seconds
         }
+
+        Console.WriteLine($"Depth searched: {depthSearched}");
+
         return bestMove;
     }
 

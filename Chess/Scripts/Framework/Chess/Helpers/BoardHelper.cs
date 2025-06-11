@@ -14,6 +14,14 @@ class BoardHelper {
         return squareIndex >> 0b00000011;
     }
 
+    public static int DiagonalIndex(int squareIndex) {
+        return RowIndex(squareIndex) - ColumnIndex(squareIndex) + 7;
+    }
+
+    public static int AntiDiagonalIndex(int squareIndex) {
+        return RowIndex(squareIndex) + ColumnIndex(squareIndex);
+    }
+
     public static int IndexFromCoord(int rowIndex, int columnIndex) {
         return columnIndex * 8 + rowIndex;
     }

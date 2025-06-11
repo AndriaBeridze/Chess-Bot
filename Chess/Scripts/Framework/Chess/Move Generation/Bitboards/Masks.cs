@@ -66,6 +66,40 @@ class Masks {
 
     };  
 
-    public static Bitboard KnightMoves = new Bitboard(0xa1100110a);
-    public static Bitboard KingMoves = new Bitboard(0x70507);
+    // In Masks.cs
+    public static Bitboard[] KnightAttacks = new Bitboard[64];
+    public static Bitboard[] KingAttacks = new Bitboard[64];
+
+    static Masks() {
+        // Initialize knight and king attack tables
+        for (int i = 0; i < 64; i++) {
+            Bitboard attacks = new Bitboard(0);
+            int x = i % 8;
+            int y = i / 8;
+            
+            // Knight moves
+            foreach (var (dx, dy) in new[] { (1,2), (2,1), (-1,2), (-2,1), (1,-2), (2,-1), (-1,-2), (-2,-1) }) {
+                int nx = x + dx;
+                int ny = y + dy;
+                if (nx >= 0 && nx < 8 && ny >= 0 && ny < 8) {
+                    attacks.SetBit(ny * 8 + nx);
+                }
+            }
+            KnightAttacks[i] = attacks;
+
+            // King moves
+            attacks = new Bitboard(0);
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dy = -1; dy <= 1; dy++) {
+                    if (dx == 0 && dy == 0) continue;
+                    int nx = x + dx;
+                    int ny = y + dy;
+                    if (nx >= 0 && nx < 8 && ny >= 0 && ny < 8) {
+                        attacks.SetBit(ny * 8 + nx);
+                    }
+                }
+            }
+            KingAttacks[i] = attacks;
+        }
+    }
 }

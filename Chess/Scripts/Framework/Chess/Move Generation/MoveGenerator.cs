@@ -99,7 +99,7 @@ class MoveGenerator {
         while (!knights.IsEmpty) {
             int index = knights.FirstBit;
 
-            Bitboard moveSet = MoveHelper.KnightMoves(index);
+            Bitboard moveSet = Masks.KnightAttacks[index];
             moveSet &= board.Empty | board.Color[!board.IsWhiteTurn]; // Remove all the moves that go to the squares occupied by the same color pieces to avoid same color capturing
             moveSet &= attackRays;
             if (pins.ContainsKey(index)) moveSet &= pins[index];
@@ -159,7 +159,7 @@ class MoveGenerator {
         Bitboard kings = board.Type[Piece.King] & board.Color[board.IsWhiteTurn];
 
         int index = kings.FirstBit;
-        Bitboard moveSet = MoveHelper.KingMoves(index);
+        Bitboard moveSet = Masks.KingAttacks[index];
 
         // Remove all the moves that go to the squares occupied by the same color pieces to avoid same color capturing
         moveSet &= board.Empty | board.Color[!board.IsWhiteTurn];
@@ -283,7 +283,7 @@ class MoveGenerator {
         }
 
         // Knights
-        Bitboard knightMoves = MoveHelper.KnightMoves(kingIndex);
+        Bitboard knightMoves = Masks.KnightAttacks[kingIndex];
         if (!(knightMoves & knights).IsEmpty) {
             temp |= knightMoves & knights;
             attackerIndexes.Add((knightMoves & knights).FirstBit);

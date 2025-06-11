@@ -23,6 +23,7 @@ class Bitboard {
     public static Bitboard operator ~(Bitboard a) => new Bitboard(~a.Value);
     public static Bitboard operator <<(Bitboard a, int shift) => new Bitboard(a.Value << shift);
     public static Bitboard operator >>(Bitboard a, int shift) => new Bitboard(a.Value >> shift);
+    public static Bitboard operator *(Bitboard a, Bitboard b) => new Bitboard(a.Value * b.Value);
 
     public static Bitboard operator +(Bitboard a, Bitboard b) => new Bitboard(a.Value + b.Value);  
     public static Bitboard operator -(Bitboard a, Bitboard b) => new Bitboard(a.Value - b.Value);

@@ -1,3 +1,5 @@
+using System.Diagnostics.Contracts;
+
 namespace Chess.API;
 
 class Coord {
@@ -34,6 +36,15 @@ class Coord {
     public override string ToString() {
         return $"{(char)('a' + ColumnIndex)}{RowIndex + 1}";
     }
+
+    public static Coord North => new(1, 0);
+    public static Coord South => new(-1, 0);
+    public static Coord East => new(0, 1);
+    public static Coord West => new(0, -1);
+    public static Coord NorthEast => new(1, 1);
+    public static Coord NorthWest => new(1, -1);
+    public static Coord SouthEast => new(-1, 1);
+    public static Coord SouthWest => new(-1, -1);
 
     public static bool operator ==(Coord a, Coord b) => a.RowIndex == b.RowIndex && a.ColumnIndex == b.ColumnIndex;
     public static bool operator !=(Coord a, Coord b) => a.RowIndex != b.RowIndex || a.ColumnIndex != b.ColumnIndex;
