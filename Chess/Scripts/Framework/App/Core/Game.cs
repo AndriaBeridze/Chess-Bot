@@ -57,6 +57,9 @@ class Game {
         gameStatus = new Status("");
         buttons = new Menu();
 
+        if (!File.Exists("Chess/Resources/Openings/Books.bin")) {
+            OpeningBook.GenerateBinaryOpeningBook("Chess/Resources/Openings/Books.txt", "Chess/Resources/Openings/Books.bin");
+        }
         openingBook = new OpeningBook();
 
         currentPlayer = chessBoard.IsWhiteTurn ? whitePlayer : blackPlayer;

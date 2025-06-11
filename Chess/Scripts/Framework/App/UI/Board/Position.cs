@@ -179,7 +179,7 @@ class Position {
     }
 
     public void Animate(int index, Move move) {
-        int frames = 20;
+        int frames = 18;
         double startX = UIHelper.GetScreenX(ChessEngine.BoardHelper.ColumnIndex(move.Source));
         double startY = UIHelper.GetScreenY(ChessEngine.BoardHelper.RowIndex(move.Source));
         double endX = UIHelper.GetScreenX(ChessEngine.BoardHelper.ColumnIndex(move.Target));

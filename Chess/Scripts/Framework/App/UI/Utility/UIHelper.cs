@@ -7,7 +7,7 @@ using Raylib_cs;
 class UIHelper {
     // Finding square's x position on screen by its column index
     public static int GetScreenX(int columnIndex) {
-        return Settings.ScreenWidth / 2 - (Settings.FromWhitesView ? (4 - columnIndex) : (columnIndex - 3)) * Settings.SquareSideLength;
+        return Settings.BoardMarginLeft + (Settings.FromWhitesView ? columnIndex : (7 - columnIndex)) * Settings.SquareSideLength;
     }
 
     // Finding square's y position on screen by its row index

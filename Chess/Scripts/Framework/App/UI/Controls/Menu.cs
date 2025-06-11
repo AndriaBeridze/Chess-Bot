@@ -13,7 +13,7 @@ class Menu {
     public Menu() {
         string[] buttonTexts = { "Play as White", "Play as Black", "AI vs AI" };
 
-        int posX = (Settings.ScreenWidth / 2 - 4 * Settings.SquareSideLength - Settings.BorderSize) / 2 - width / 2;
+        int posX = (Settings.BoardMarginLeft - Settings.BorderSize) / 2 - width / 2;
         int posY = Settings.ScreenHeight / 2 + 4 * Settings.SquareSideLength - height;
 
         for (int i = buttonTexts.Length - 1; i >= 0; i--) {

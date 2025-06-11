@@ -11,57 +11,57 @@ class OpeningBook {
     private List<List<Move>> book = new List<List<Move>>();
 
     public OpeningBook() {
-        string[] openings = File.ReadAllLines("Chess/Resources/Openings.txt"); // Openings.txt is a file that contains opening moves in the coordinate notation
-
-        for (int openingIndex = 0; openingIndex < openings.Length; openingIndex++) {
-            string opening = openings[openingIndex];
-            List<Move> currentOpeningList = new List<Move>();
-            string[] moves = opening.Split(' ');
-
-            for (int i = 0; i < moves.Length; i++) {
-                string move = moves[i];
-                if (i == moves.Length - 1) continue; // When reading the line, '\n' is also read
-
-                int source = BoardHelper.SquareIndexFromName(move.Substring(0, 2)); // First two characters are the source square
-                int target = BoardHelper.SquareIndexFromName(move.Substring(2, 2)); // Next two characters are the target square
-                int flag = 0;
-
-                // Whenever I was converting the games from pgn to coordinate notation, I added letter at the end of the move to indicate the various flags
-                // q - Queen Promotion
-                // r - Rook Promotion
-                // b - Bishop Promotion
-                // n - Knight Promotion
-                // c - Castling
-                // p - En Passant
-                if (move.Length == 5) {
-                    switch (move[4]) {
-                        case 'q':
-                            flag = Move.QueenPromotion;
-                            break;
-                        case 'r':
-                            flag = Move.RookPromotion;
-                            break;
-                        case 'b':
-                            flag = Move.BishopPromotion;
-                            break;
-                        case 'n':
-                            flag = Move.KnightPromotion;
-                            break;
-                        case 'c':
-                            flag = Move.Castling;
-                            break;
-                        case 'p':
-                            flag = Move.EnPassant;
-                            break;
-                    }
+        using (FileStream fs = File.OpenRead("Chess/Resources/Openings/Books.bin"))
+        using (BinaryReader br = new BinaryReader(fs)) {
+            int openingCount = br.ReadInt32();
+            for (int i = 0; i < openingCount; i++) {
+                int moveCount = br.ReadInt32();
+                List<Move> opening = new List<Move>();
+                for (int j = 0; j < moveCount; j++) {
+                    int source = br.ReadInt32();
+                    int target = br.ReadInt32();
+                    ushort flag = br.ReadUInt16();
+                    opening.Add(new Move(source, target, flag));
                 }
-
-                currentOpeningList.Add(new Move(source, target, (ushort)flag));
+                book.Add(opening);
             }
-
-            book.Add(currentOpeningList);
         }
     }
+
+    // Run this once to generate the .bin file
+    public static void GenerateBinaryOpeningBook(string inputPath, string outputPath) {
+        var openings = File.ReadAllLines(inputPath);
+        using var fs = File.Create(outputPath);
+        using var bw = new BinaryWriter(fs);
+        bw.Write(openings.Length);
+
+        foreach (string line in openings) {
+            var moves = line.Split(' ');
+            bw.Write(moves.Length - 1); // Skip last if empty
+            for (int i = 0; i < moves.Length - 1; i++) {
+                string move = moves[i];
+                int source = BoardHelper.SquareIndexFromName(move.Substring(0, 2));
+                int target = BoardHelper.SquareIndexFromName(move.Substring(2, 2));
+                ushort flag = 0;
+                if (move.Length == 5) {
+                    flag = move[4] switch {
+                        'q' => Move.QueenPromotion,
+                        'r' => Move.RookPromotion,
+                        'b' => Move.BishopPromotion,
+                        'n' => Move.KnightPromotion,
+                        'c' => Move.Castling,
+                        'p' => Move.EnPassant,
+                        _ => 0
+                    };
+                }
+                bw.Write(source);
+                bw.Write(target);
+                bw.Write(flag);
+            }
+        }
+    }
+
+
 
     // Gets random move from the possible opening positions
     public Move GetMove(List<Move> movesMade) {

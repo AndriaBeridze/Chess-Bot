@@ -4,6 +4,7 @@ using Chess.App;
 using Chess.Utility;
 using Chess.Testing;
 using Raylib_cs;
+using System.Diagnostics;
 
 class Program {
     static void Main(string[] args) {

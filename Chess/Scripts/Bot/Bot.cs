@@ -20,10 +20,10 @@ class Bot {
 
     public static Move Think(Board board) {
         DateTime time = DateTime.Now;
-        for (int i = 1; i < int.MaxValue; i++) {
+        for (int i = 1; i <= 100; i++) {
+            bestMove = Move.NullMove; // Reset the best move for each depth
             Search(board, i);
-            TimeSpan elapsed = DateTime.Now - time;
-            if (elapsed.TotalSeconds > 0.5f) break;
+            if ((DateTime.Now - time).TotalSeconds > 1) break; // Limit the thinking time to 1 seconds
         }
         return bestMove;
     }

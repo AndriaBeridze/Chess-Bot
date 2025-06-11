@@ -28,7 +28,10 @@ class Timer {
     public void Stop() => isRunning = false;
 
     public void Update() {
-        if (!isRunning) return;
+        if (!isRunning) {
+            prevUpdate = DateTime.Now;
+            return;
+        }
 
         time -= (DateTime.Now - prevUpdate).TotalSeconds;
         if (time <= 0) {
@@ -47,7 +50,7 @@ class Timer {
         Color rectColor = GetColor(active, isWhite, true);
         Color textColor = GetColor(active, isWhite, false);
 
-        int x = Settings.ScreenWidth / 2 + 4 * Settings.SquareSideLength - RectWidth;
+        int x = Settings.BoardMarginLeft + 8 * Settings.SquareSideLength - RectWidth;
         int space = Settings.ScreenHeight / 2 - (Settings.SquareSideLength * 4 + Settings.BorderSize);
         int y = isOnTop
             ? space - Offset - FontSize + 6
