@@ -15,5 +15,5 @@ class Settings {
     public static int BoardMarginLeft = (ScreenWidth - 8 * SquareSideLength) / 2;
 
     // Timer
-    public static float TimeLimit = 20f * 60; // 10 minutes in seconds
+    public static float TimeLimit = 10f * 60; // 10 minutes in seconds
 }
