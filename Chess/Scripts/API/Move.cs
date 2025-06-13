@@ -1,3 +1,5 @@
+using Chess.ChessEngine;
+
 namespace Chess.API;
 
 class Move {

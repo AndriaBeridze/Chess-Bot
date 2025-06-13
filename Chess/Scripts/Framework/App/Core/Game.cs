@@ -122,7 +122,7 @@ class Game {
             if (token.IsCancellationRequested) return;
 
             Move move = openingBook.GetMove(chessBoard.MovesMade);
-            if (move.IsNull) move = currentPlayer.Search(chessBoard); // You can pass the token here if supported
+            if (move.IsNull) move = currentPlayer.Search(chessBoard, chessBoard.IsWhiteTurn ? whiteTimer.Time : blackTimer.Time); // You can pass the token here if supported
 
             animationTokenSource = new CancellationTokenSource();
             var animToken = animationTokenSource.Token;

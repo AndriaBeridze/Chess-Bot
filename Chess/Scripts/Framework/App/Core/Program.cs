@@ -4,7 +4,6 @@ using Chess.App;
 using Chess.Utility;
 using Chess.Testing;
 using Raylib_cs;
-using System.Diagnostics;
 
 class Program {
     static void Main(string[] args) {
@@ -15,7 +14,7 @@ class Program {
 
         Raylib.SetTraceLogLevel(TraceLogLevel.None);
         Raylib.InitWindow(Settings.ScreenWidth, Settings.ScreenHeight, "Chess by Andria Beridze");
-        Raylib.SetTargetFPS(60);
+        Raylib.SetTargetFPS(90);
         Raylib.InitAudioDevice();
 
         // Default game: Human vs Bot | Initial position | Board visible from white's view

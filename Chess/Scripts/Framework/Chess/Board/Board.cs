@@ -31,9 +31,14 @@ class Board {
     public Bitboard Occupied => Color[true] | Color[false];
     public Bitboard Empty => ~Occupied;
 
+    public ulong ZobristKey;
+
+    public Move LastMove => MovesMade.Count > 0 ? MovesMade[^1] : Move.NullMove;
+
     public Board(string fen) {
         FenUtility.LoadFen(fen, this);
         MovesMade = new List<Move>(); // Clearing the list of moves after resetting the game
+        ZobristKey = ZobristHashing.CalculateZobristKey(this);
     }
 
     public void SwitchTurn() => IsWhiteTurn = !IsWhiteTurn;
@@ -44,11 +49,14 @@ class Board {
         if (IsWhiteTurn) MoveCount++;
 
         if (record) MovesMade.Add(move);
+        ZobristKey = ZobristHashing.CalculateZobristKey(this);
     }
 
     public void UnmakeMove(Move move) {
         if (IsWhiteTurn) MoveCount--;
         SwitchTurn();
         MoveUtility.UnmakeMove(this, move);
+
+        ZobristKey = ZobristHashing.CalculateZobristKey(this);
     }
 }
