@@ -20,7 +20,7 @@ class ZobristHashing {
         return key;
     }
 
-    private static readonly ulong[,] ZobristTable = new ulong[64, 12]; // 12 pieces, 2 colors
+    private static readonly ulong[,] ZobristTable = new ulong[64, 12]; // 64 squares, 12 piece types (6 colors * 2 types)
     private static readonly ulong blackToMoveKey = 0x1UL; // Unique key for black to move
 
     static ZobristHashing() {

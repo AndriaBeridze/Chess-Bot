@@ -1,6 +1,8 @@
 namespace Chess.ChessEngine;
 
 static class Magic {
+    // Magic Bitboards for Rook and Bishop attacks
+    // These are precomputed masks that allow for fast calculation of slider attacks
     public static Bitboard[] RookMask;
     public static Bitboard[] BishopMask;
 
@@ -25,6 +27,7 @@ static class Magic {
         RookMask = new Bitboard[64];
         BishopMask = new Bitboard[64];
 
+        // Initialize the masks for each square
         for (int squareIndex = 0; squareIndex < 64; squareIndex++) {
             RookMask[squareIndex] = MagicHelper.CreateMovementMask(squareIndex, true);
             BishopMask[squareIndex] = MagicHelper.CreateMovementMask(squareIndex, false);
@@ -33,11 +36,13 @@ static class Magic {
         RookAttacks = new Bitboard[64][];
         BishopAttacks = new Bitboard[64][];
 
+        // Create the attack tables for each square
         for (int i = 0; i < 64; i++){
             RookAttacks[i] = CreateTable(i, true, new Bitboard(MagicNumbers.RookMagics[i]), MagicNumbers.RookShifts[i]);
             BishopAttacks[i] = CreateTable(i, false, new Bitboard(MagicNumbers.BishopMagics[i]), MagicNumbers.BishopShifts[i]);
         }
 
+        // Initialize the magic numbers and shifts
         Bitboard[] CreateTable(int square, bool rook, Bitboard magic, int leftShift) {
             int numBits = 64 - leftShift;
             int lookupSize = 1 << numBits;

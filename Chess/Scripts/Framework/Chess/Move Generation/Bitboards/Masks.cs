@@ -65,8 +65,7 @@ class Masks {
         new Bitboard(0x8000000000000000)
 
     };  
-
-    // In Masks.cs
+    
     public static Bitboard[] KnightAttacks = new Bitboard[64];
     public static Bitboard[] KingAttacks = new Bitboard[64];
 

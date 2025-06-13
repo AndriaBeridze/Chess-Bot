@@ -138,7 +138,6 @@ class MoveHelper {
 
     // Extract all moves for any other piece
     // All other pieces moves are generated one by one, so considering pins are not necessary
-    // In MoveHelper.cs
     public static List<Move> ExtractMoves(Bitboard bitboard, int index) {
         List<Move> moves = new List<Move>(bitboard.Count());
         ulong value = bitboard.Value;
