@@ -23,6 +23,8 @@ class Arbiter {
     }
 
     public static bool IsDraw(Board board) {
+        if (board.CountZobristKeys(board.ZobristKey) >= 3) return true;
+
         if (board.HalfMoveClock >= 100) return true;
 
         if (!board.Type[Piece.Rook].IsEmpty) return false;

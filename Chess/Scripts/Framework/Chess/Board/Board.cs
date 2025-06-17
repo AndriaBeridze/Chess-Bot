@@ -10,6 +10,7 @@ class Board {
     public int HalfMoveClock = 0;
     public int MoveCount = 1;
 
+    public List<ulong> PastZobristKeys = new List<ulong>();
     public List<Move> MovesMade = new List<Move>();
 
     // Bitboard for pieces
@@ -38,7 +39,9 @@ class Board {
     public Board(string fen) {
         FenUtility.LoadFen(fen, this);
         MovesMade = new List<Move>(); // Clearing the list of moves after resetting the game
+        
         ZobristKey = ZobristHashing.CalculateZobristKey(this);
+        PastZobristKeys = new List<ulong> { ZobristKey }; // Initialize with the current key
     }
 
     public void SwitchTurn() => IsWhiteTurn = !IsWhiteTurn;
@@ -48,8 +51,10 @@ class Board {
         SwitchTurn();
         if (IsWhiteTurn) MoveCount++;
 
-        if (record) MovesMade.Add(move);
         ZobristKey = ZobristHashing.CalculateZobristKey(this);
+        PastZobristKeys.Add(ZobristKey);
+
+        if (record) MovesMade.Add(move);
     }
 
     public void UnmakeMove(Move move) {
@@ -57,6 +62,15 @@ class Board {
         SwitchTurn();
         MoveUtility.UnmakeMove(this, move);
 
+        PastZobristKeys.RemoveAt(PastZobristKeys.Count - 1);
         ZobristKey = ZobristHashing.CalculateZobristKey(this);
+    }
+
+    public int CountZobristKeys(ulong zobristKey) {
+        int count = 0;
+        foreach (ulong key in PastZobristKeys) {
+            if (key == zobristKey) count++;
+        }
+        return count;
     }
 }

@@ -64,6 +64,8 @@ class Bot {
     public static int Search(Board board, int depth, int alpha = negativeInfinity, int beta = positiveInfinity, bool firstCall = true) {
         if (searchCancelled) return 0;
 
+        if (board.CountZobristKeys(board.ZobristKey) >= 3) return 0; // Threefold repetition draw
+
         int hashF = HashFlag.ALPHA;
 
         // Probe transposition table for prior result
@@ -120,6 +122,8 @@ class Bot {
     // Quiescence search to avoid horizon effect on captures
     public static int QuiescenceSearch(Board board, int alpha, int beta) {
         if (searchCancelled) return 0;
+
+        if (board.CountZobristKeys(board.ZobristKey) >= 3) return 0; // Threefold repetition draw
 
         int eval = Evaluation.Evaluate(board);
         if (eval >= beta) return beta;
